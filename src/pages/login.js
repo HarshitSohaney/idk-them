@@ -3,6 +3,7 @@ import QueryString from 'qs';
 import { useNavigate } from'react-router-dom';
 import env
  from 'react-dotenv';
+import UserContext from '../contexts/userContext';
 
 const SCOPES = 
     `user-read-private
@@ -27,6 +28,7 @@ const generateRandomString = (length) => {
 
 function Login() {
     const navigate = useNavigate();
+    const userInfo = useContext(UserContext);
 
     const getAuthCode = async () => {
         if (localStorage.getItem("authToken")!== null) {
@@ -68,7 +70,7 @@ function Login() {
     }
     const handleAuthCode = async () => {
         if(localStorage.getItem("authToken")!== null) {
-            return localStorage.getItem("authToken");
+            localStorage.getItem("authToken");
         }
         // check if we just got back a code
         const params = new URLSearchParams(window.location.search);
