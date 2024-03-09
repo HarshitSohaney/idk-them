@@ -4,7 +4,6 @@ import { useNavigate } from'react-router-dom';
 import Results from './pages/results';
 import Login from './pages/login';
 import Search from './pages/search';
-import AuthContext from './contexts/authContext';
 
 function App() {
   const navigate = useNavigate();

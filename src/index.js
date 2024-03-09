@@ -16,17 +16,15 @@ const browserRoot = createBrowserRouter([
     path: '/',
     element: <App />,
     errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/results',
-        element: <Results />,
-        errorElement: <ErrorPage />,
-      },
-    ],
   },
   {
     path: '/login',
     element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/results/:id',
+    element: <Results />,
     errorElement: <ErrorPage />,
   },
 ]);

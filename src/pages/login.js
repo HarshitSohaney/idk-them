@@ -3,10 +3,19 @@ import QueryString from 'qs';
 import { useNavigate } from'react-router-dom';
 import env
  from 'react-dotenv';
-import AuthContext from '../contexts/authContext';
 
 const SCOPES = 
     `user-read-private
+    user-library-read
+    user-read-recently-played
+    user-top-read
+    user-read-currently-playing
+    user-library-modify
+    user-follow-read
+    user-follow-modify
+    playlist-read-private
+    playlist-modify-public
+    playlist-modify-private
     `;
 const REDIRECT_URI = 'http://localhost:3000/login';
 
