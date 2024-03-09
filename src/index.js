@@ -3,11 +3,38 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from 'react-router-dom';
+import Results from './pages/results';
+import Login from './pages/login';
+import ErrorPage from './pages/error-page';
+
+const browserRoot = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '/results',
+        element: <Results />,
+        errorElement: <ErrorPage />,
+      },
+    ],
+  },
+  {
+    path: '/login',
+    element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={browserRoot} />
   </React.StrictMode>
 );
 

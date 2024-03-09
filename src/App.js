@@ -1,23 +1,37 @@
-import logo from './logo.svg';
 import './App.css';
+import { React, useEffect, useState } from'react';
+import { useNavigate } from'react-router-dom';
+import Results from './pages/results';
+import Login from './pages/login';
+import Search from './pages/search';
+import AuthContext from './contexts/authContext';
 
 function App() {
+  const navigate = useNavigate();
+  const [spotifyAuthToken, setSpotifyAuthToken] = useState(null);
+  const [searchResults, setSearchResults] = useState(null);
+
+  useEffect(() => {
+    if(localStorage.getItem("authToken") !== null) {
+      console.log("authToken exists");
+      setSpotifyAuthToken(localStorage.getItem("authToken"));
+    }
+    else {
+      setSpotifyAuthToken(null);  
+    }
+  }
+  , []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {spotifyAuthToken? (
+        <Search
+        spotifyAuthToken={spotifyAuthToken}
+        setSearchResults={setSearchResults}
+        />
+        ) : 
+          navigate("/login")
+          }
     </div>
   );
 }
