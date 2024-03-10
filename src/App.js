@@ -1,10 +1,11 @@
-import './App.css';
+import './css/App.css';
 import { React, useEffect, useState } from'react';
 import { useNavigate } from'react-router-dom';
 import Search from './pages/search';
 import Results from './pages/results';
 import UserContext from './contexts/userContext';
 import SearchContext from './contexts/searchContext';
+import Logout from './components/logout';
 
 function App() {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ function App() {
                 spotifyAuthToken={spotifyAuthToken}
               />
               )}
+              <Logout />
           </UserContext.Provider>
           </SearchContext.Provider>
         ) : (

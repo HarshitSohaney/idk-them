@@ -2,6 +2,7 @@ import React, { useEffect, useContext, useState } from'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import UserContext from '../contexts/userContext';
 import SearchContext from '../contexts/searchContext';
+import "../css/results.css"
 
 function Results() {
     const navigate = useNavigate();
@@ -110,12 +111,11 @@ function Results() {
     }, []);
 
     return (
-        <div>
+        <div className='results'>
             {doneLoading && artistInfo? (
                 <div>
-                    <h1>YOU KNOW THESE GUYS! </h1>
-                    <h2>{artistInfo.name}</h2>
                     <img src={artistInfo.images[0].url} alt="artist" />
+                    <h2>{artistInfo.name}</h2>
                     <p>{artistInfo.followers.total} followers</p>
                     <p>{artistInfo.genres}</p>
                     <p>{artistInfo.popularity}</p>
@@ -134,6 +134,12 @@ function Results() {
                     </ul>
                 </div>
             ) : <div> Loading... </div> }
+            <div>
+                <input type="button" value="Back to Search" onClick={() => {
+                    updateArtistID(null);
+                    navigate('/')
+                }} />
+            </div>
         </div>
     );
 }

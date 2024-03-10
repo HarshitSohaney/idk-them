@@ -1,0 +1,11 @@
+body > #root > div {
+  height: 100vh;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #121212;
+}

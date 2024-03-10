@@ -1,0 +1,92 @@
+.search {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+    color: #ffffff;
+}
+
+.username {
+    color: #1DB954;
+}
+
+.search input {
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 99px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+#suggestions-table {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 2rem;    
+    overflow-x: scroll;
+    flex-wrap: nowrap;
+    width: 100%;
+    justify-content: center;
+}
+
+.artist-suggestion {
+    padding: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.artist-suggestion:hover {
+    background-color: #000000;
+}
+
+.artist-suggestion > button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    border: none;
+    border-radius: 20px;
+}
+
+.artist-suggestion img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+@media screen and (max-width: 768px) {
+
+    #suggestions-table {
+        flex-direction: column;
+        overflow: scroll;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .artist-suggestion {
+        padding: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 80%; 
+        margin: 1px;
+    }
+    .artist-suggestion > button {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .artist-suggestion img {
+        padding: 5px 5px;
+        width: 80px;
+        height: 80px;
+    }
+
+    .artist-suggestion >button > p{
+        font-size: 0.8rem;
+        align-items: center;
+    }
+}

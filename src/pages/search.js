@@ -1,6 +1,7 @@
 import { React,useEffect, useState, useContext } from "react";
 import SearchSuggest from "../components/search-suggest";
 import UserContext from "../contexts/userContext";
+import "../css/search.css";
 import { useNavigate } from "react-router-dom";
 
 function Search({spotifyAuthToken}) {
@@ -121,26 +122,19 @@ function Search({spotifyAuthToken}) {
         }
     }, [searchTerm, spotifyAuthToken, setSearchResults]);
     return (
-        <div>
-            <h1>Who are you looking for {userInfo.userName}?</h1>
-            <input type="text" placeholder="Search for a song" onChange={(event) => {
+        <div className="search">
+            <h1>Who are you looking for <span className="username">{userInfo.userName}</span>?</h1>
+            <input type="text" placeholder="Search for an Artist..." onChange={(event) => {
                 setSearchTerm(event.target.value);
             }} />
-            {/* dropdown of artists created as user searches */}
-            <table id="suggestions-table">
-                <thead>
-                    <tr>
-                        <th>Artist</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {searchResults? searchResults.map((artist) => {
+            {searchResults.length > 0? (
+            <div id="suggestions-table">
+                    {searchResults.map((artist) => {
                         return (
                             <SearchSuggest key={artist.id} name={artist.name} images={artist.images} id={artist.id}/>
                         );
-                    }) : null}
-                </tbody>
-            </table>
+                    })}
+            </div>) : null}
         </div>
     );
 }

@@ -3,8 +3,7 @@ import QueryString from 'qs';
 import { useNavigate } from'react-router-dom';
 import env
  from 'react-dotenv';
-import UserContext from '../contexts/userContext';
-
+import "../css/login.css";
 const SCOPES = 
     `user-read-private
     user-library-read
@@ -119,14 +118,14 @@ function Login() {
     }, []);
 
     return (
-        <div>
-            <h1>Login</h1>
-            <button onClick={async () => {
+        <div class="login-root">
+            <h1>Do I know them?</h1>
+            <button id="login-spotify" onClick={async () => {
                 // TODO: Set the auth tokens in the local storage
                 // and set authenticated to true
                 // Spotify login setup
                 const authToken = await getAuthCode();
-            }}>Login</button>
+            }}>Login With Spotify</button>
         </div>
     );
 }
