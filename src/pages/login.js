@@ -14,6 +14,7 @@ const SCOPES =
     user-follow-read
     user-follow-modify
     playlist-read-private
+    playlist-read-collaborative
     playlist-modify-public
     playlist-modify-private
     `;

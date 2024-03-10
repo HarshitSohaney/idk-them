@@ -1,7 +1,9 @@
 .results {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
+    overflow: scroll;
+    color: white;
+    scrollbar-width: thin;
+    scrollbar-color: #1DB954 #121212;
+    height: 100vh;
 }
