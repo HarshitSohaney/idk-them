@@ -1,4 +1,4 @@
-import { React,useEffect,useState, useContext } from "react";
+import { React,useEffect, useState, useContext } from "react";
 import SearchSuggest from "../components/search-suggest";
 import UserContext from "../contexts/userContext";
 
@@ -25,7 +25,7 @@ function Search({spotifyAuthToken}) {
         });
 
         // lets get all the user's playlists
-        fetch(`https://api.spotify.com/v1/users/${userInfo.userID}/playlists`, {
+        fetch(`https://api.spotify.com/v1/me/playlists`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

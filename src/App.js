@@ -2,7 +2,9 @@ import './App.css';
 import { React, useEffect, useState } from'react';
 import { useNavigate } from'react-router-dom';
 import Search from './pages/search';
+import Results from './pages/results';
 import UserContext from './contexts/userContext';
+import SearchContext from './contexts/searchContext';
 
 function App() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ function App() {
   const [userTopTracks, setUserTopTracks] = useState([]);
   const [userFollowedArtists, setUserFollowedArtists] = useState([]);
   const [userFollowsSearchedArtist, setUserFollowsSearchedArtist] = useState(false);
+  const [artistID, setArtistID] = useState(null);
 
   const updateUserID = (newUserID) => {
     setUserID(newUserID);
@@ -24,7 +27,6 @@ function App() {
   }
   const updateUserPlaylists = (newUserPlaylists) => {
     setUserPlaylists(newUserPlaylists);
-    console.log(newUserPlaylists);
   }
   const updateArtistInfo = (newArtistInfo) => {
     setArtistInfo(newArtistInfo);
@@ -41,6 +43,10 @@ function App() {
   }
   const updateUserFollowsSearchedArtist = (newUserFollowsSearchedArtist) => {
     setUserFollowsSearchedArtist(newUserFollowsSearchedArtist);
+  }
+
+  const updateArtistID = (newArtistID) => {
+    setArtistID(newArtistID);
   }
 
   const userContext = {
@@ -62,32 +68,45 @@ function App() {
     updateUserFollowsSearchedArtist,
   };
 
+  const searchContext = {
+    artistID,
+    updateArtistID,
+  };
+
   useEffect(() => {
     if(localStorage.getItem("authToken") !== null) {
-      console.log("authToken exists");
       setSpotifyAuthToken(localStorage.getItem("authToken"));
     }
     else {
       setSpotifyAuthToken(null);  
+      navigate('/login');
     }
   }
   , []);
 
   useEffect(() => {
-    console.log(userName);
+    console.log("name", userName);
   }, [userName]);
+
   return (
-    
       <div className="App">
         {spotifyAuthToken? (
+          <SearchContext.Provider value={searchContext}>
           <UserContext.Provider value={userContext}>
-             <Search
-              spotifyAuthToken={spotifyAuthToken}
-            />
+            {artistID? (
+              <Results
+                spotifyAuthToken={spotifyAuthToken}
+                artistID={artistID}
+              /> ) : (
+                <Search
+                spotifyAuthToken={spotifyAuthToken}
+              />
+              )}
           </UserContext.Provider>
-          ) : 
-            navigate("/login")
-            }
+          </SearchContext.Provider>
+        ) : (
+          navigate('/login')
+        )}
       </div>
   );
 }

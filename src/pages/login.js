@@ -28,11 +28,10 @@ const generateRandomString = (length) => {
 
 function Login() {
     const navigate = useNavigate();
-    const userInfo = useContext(UserContext);
 
     const getAuthCode = async () => {
-        if (localStorage.getItem("authToken")!== null) {
-            return localStorage.getItem("authToken");
+        if (localStorage.getItem("authToken") !== null) {
+            navigate('/');
         }
 
         const codeVerifier = generateRandomString(64);
@@ -71,6 +70,7 @@ function Login() {
     const handleAuthCode = async () => {
         if(localStorage.getItem("authToken")!== null) {
             localStorage.getItem("authToken");
+            navigate('/');
         }
         // check if we just got back a code
         const params = new URLSearchParams(window.location.search);
@@ -114,6 +114,7 @@ function Login() {
         /* The code snippet you provided is part of a React component called `Login`. In this
         component, the `useEffect` hook is being used to perform certain actions when the component
         mounts. */
+        console.log('checking auth in login')
         const authToken = handleAuthCode();
     }, []);
 
@@ -125,7 +126,6 @@ function Login() {
                 // and set authenticated to true
                 // Spotify login setup
                 const authToken = await getAuthCode();
-                console.log('authToken', authToken);
             }}>Login</button>
         </div>
     );

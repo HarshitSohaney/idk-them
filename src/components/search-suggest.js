@@ -1,10 +1,13 @@
-import React from'react';
+import React, { useContext } from'react';
+import SearchContext from '../contexts/searchContext';
 import { useNavigate } from'react-router-dom';
 
 function SearchSuggest({name, id, images}) {
     const navigate = useNavigate();
+    const { artistID, updateArtistID } = useContext(SearchContext);
+
     const handleSuggestClick = () => {
-        navigate(`/results/${id}`);
+        updateArtistID(id);
     }
 
     return (
