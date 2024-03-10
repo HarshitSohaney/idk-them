@@ -1,8 +1,10 @@
 import { React,useEffect, useState, useContext } from "react";
 import SearchSuggest from "../components/search-suggest";
 import UserContext from "../contexts/userContext";
+import { useNavigate } from "react-router-dom";
 
 function Search({spotifyAuthToken}) {
+    const navigate = useNavigate();
     const userInfo = useContext(UserContext);
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -17,6 +19,11 @@ function Search({spotifyAuthToken}) {
                 'Authorization': `Bearer ${spotifyAuthToken}`
             }
         }).then(response => {
+            if(response.status === 401) {
+                localStorage.removeItem('authToken');
+                // if error occurs with bad access token, we need to redirect to login
+                navigate('/login');
+            }
             response.json().then(data => {
                 userInfo.updateUserID(data.id);
                 userInfo.updateUserName(data.display_name);
@@ -25,7 +32,7 @@ function Search({spotifyAuthToken}) {
         });
 
         // lets get all the user's playlists
-        fetch(`https://api.spotify.com/v1/me/playlists`, {
+        fetch(`https://api.spotify.com/v1/me/playlists/limit=50`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,6 +41,19 @@ function Search({spotifyAuthToken}) {
         }).then(response => {
             response.json().then(data => {
                 userInfo.updateUserPlaylists(data.items);
+            });
+        }
+        );
+
+        fetch(`https://api.spotify.com/v1/me/playlists?limit=50&offset=50`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${spotifyAuthToken}`
+            }
+        }).then(response => {
+            response.json().then(data => {
+                userInfo.updateUserPlaylists(userInfo.userPlaylists.concat(data.items));
             });
         }
         );

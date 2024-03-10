@@ -3,7 +3,6 @@ import SearchContext from '../contexts/searchContext';
 import { useNavigate } from'react-router-dom';
 
 function SearchSuggest({name, id, images}) {
-    const navigate = useNavigate();
     const { artistID, updateArtistID } = useContext(SearchContext);
 
     const handleSuggestClick = () => {
@@ -14,7 +13,7 @@ function SearchSuggest({name, id, images}) {
         <button onClick={handleSuggestClick}>
             {   images.length > 0 ?
                 <img src={images[0].url} alt={name} /> : null
-            }   
+            }
             <p>{name}</p>
         </button>
     );

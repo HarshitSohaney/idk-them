@@ -12,6 +12,7 @@ function Results() {
 
     const [isTopArtist, setIsTopArtist] = useState(false);
     const [ playlistsArtistIsIn, setPlaylistsArtistIsIn ] = useState([]);
+    const [ doneLoading, setDoneLoading ] = useState(false);
 
     useEffect(() => {
         console.log("user", userInfo);
@@ -25,7 +26,6 @@ function Results() {
                 'Authorization': `Bearer ${spotifyAuthToken}`
             }
         }).then(response => {
-            console.log(response.status);
             if (response.status === 401) {
                 // if error occurs with bad access token, we need to redirect to login
                 navigate('/login');
@@ -64,9 +64,10 @@ function Results() {
             }
         });
 
-        console.log("USER INFO PLAYLISTS", userInfo.userPlaylists);
+        let promises = [];
         let playlistMap = new Map();
-        userInfo.userPlaylists.forEach(playlist => {
+        for(let playlist of userInfo.userPlaylists) {
+            promises.push(
             // get tracks in playlist
             fetch(playlist.tracks.href, {
                 method: 'GET',
@@ -76,33 +77,41 @@ function Results() {
                 }
             }).then(response => {
                 if (response.status === 401) {
+                    localStorage.removeItem('authToken');
                     // if error occurs with bad access token, we need to redirect to login
                     navigate('/login');
                 }
                 response.json().then(data => {
-                    data.items.forEach(item => {
-                        if ((item.track? item.track.artists[0].id === artistID : false) && !playlistMap.has(playlist.id)) {
-                            setPlaylistsArtistIsIn(prevState => [...prevState, playlist]);
-                            playlistMap.set(playlist.id, true);
-                            // exit the loop
-                            return;
-                        }
-                    });
+                    for(let item of data.items) {
+                        item.track.artists.forEach(artist => {
+                            if(artist.id === artistID && !playlistMap.has(playlist.id)) {
+                                playlistMap.set(playlist.id, playlist);
+                                return;
+                            }
+                        });
+                    }
                 });
-            });
+            }));
+        }
+        console.log("PLAYLISTS ARTIST IS IN", playlistsArtistIsIn);
+        Promise.all(promises).then(() => {
+            setPlaylistsArtistIsIn(Array.from(playlistMap.values()));
+            setDoneLoading(true);
+        }).catch(error => {
+            console.error('Error fetching playlists:', error);
         });
-        console.log("PLAYLISTS", playlistsArtistIsIn);
 
         } catch (error) {
             // if error occurs with bad access token, we need to redirect to login
             console.error('Error in results:', error);
         }
         
+        setDoneLoading(true);
     }, []);
 
     return (
         <div>
-            {artistInfo && playlistsArtistIsIn? (
+            {doneLoading && artistInfo? (
                 <div>
                     <h1>YOU KNOW THESE GUYS! </h1>
                     <h2>{artistInfo.name}</h2>
