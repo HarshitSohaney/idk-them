@@ -1,10 +1,12 @@
 .search {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    height: 90%;
     color: #ffffff;
+    overflow: scroll;
+    height: 100vh;
+    scrollbar-width: none;
 }
 
 .username {
@@ -16,8 +18,7 @@
     font-size: 1rem;
     border: none;
     border-radius: 99px;
-    margin-right: 10px;
-    text-align: center;
+    transition: border-color 0.3s ease;
 }
 
 #suggestions-table {
@@ -32,22 +33,27 @@
 }
 
 .artist-suggestion {
-    padding: 1em;
+    padding: 0.5em;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.artist-suggestion:hover {
-    background-color: #000000;
-}
-
 .artist-suggestion > button {
     display: flex;
+    color: white;
     flex-direction: column;
     align-items: center;
     width: 100%;
     border: none;
     border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #121212;
+    padding: 1em;
+}
+
+.artist-suggestion > button:hover {
+    cursor: pointer;
+    background-color: #404040;
 }
 
 .artist-suggestion img {

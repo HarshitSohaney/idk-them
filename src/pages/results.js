@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import UserContext from '../contexts/userContext';
 import SearchContext from '../contexts/searchContext';
 import AboutArtist from '../components/about-artist';
+import Playlists from '../components/playlists';
 import "../css/results.css"
 
 function Results() {
@@ -12,9 +13,10 @@ function Results() {
     const { artistID, updateArtistID } = useContext(SearchContext);
     const [ artistInfo, setArtistInfo ] = useState(null);
 
-    const [isTopArtist, setIsTopArtist] = useState(false);
+    const [ isTopArtist, setIsTopArtist ] = useState(false);
     const [ playlistsArtistIsIn, setPlaylistsArtistIsIn ] = useState([]);
     const [ doneLoading, setDoneLoading ] = useState(false);
+    const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
 
     useEffect(() => {
         try {
@@ -50,23 +52,28 @@ function Results() {
                 response.json().then(data => {
                     console.log(data);
                     userInfo.updateUserFollowsSearchedArtist(data[0]);
+                    setUserKnowsArtist(data[0]);
                 });
             });
 
             // is the artist in the user's top tracks?
             userInfo.userTopTracks.forEach(track => {
-                if (track.artists[0].id === artistID) {
-                    userInfo.updateUserFollowsSearchedArtist(true);
-                    setIsTopArtist(true);
-                } else {
-                    setIsTopArtist(false);
-                }
+                track.artists.forEach(artist => {
+                    console.log(artist.name);
+                    if (artist.id === artistID) {
+                        console.log('found artist in top tracks');
+                        userInfo.updateUserFollowsSearchedArtist(true);
+                        setIsTopArtist(true);
+                        setUserKnowsArtist(true);
+                    }
+                });
             });
 
             let promises = [];
             let tracks = new Set();
             let playlistMap = new Map();
             for(let playlist of userInfo.userPlaylists) {
+                new Promise(resolve => setTimeout(resolve, 500));
                 promises.push(
                 // get tracks in playlist
                 fetch(playlist.tracks.href, {
@@ -86,6 +93,7 @@ function Results() {
                             item.track?.artists.forEach(artist => {
                                 if(artist.id === artistID && !playlistMap.has(playlist.id)) {
                                     playlistMap.set(playlist.id, playlist);
+                                    setUserKnowsArtist(true);
                                     return;
                                 }
                             });
@@ -114,18 +122,17 @@ function Results() {
             {doneLoading && artistInfo? (
                 <div style={{width: '100%'}}>
                     <AboutArtist artistInfo={artistInfo} />
-    
-                    <h2>YOU FOLLOW THIS ARTIST: {userInfo.userFollowsSearchedArtist ? "YES" : "NO"}</h2>
-                    <h2>THIS ARTIST IS IN YOUR TOP TRACKS: {isTopArtist ? "YES" : "NO"}</h2>
-    
-                    <h2>PLAYLISTS THIS ARTIST IS IN:</h2>
-                    <ul>
-                        {playlistsArtistIsIn.map(playlist => {
-                            return (
-                                <li key={playlist.id}>{playlist.name}</li>
-                            );
-                        })}
-                    </ul>
+
+                    {isTopArtist? (
+                        <h2>THIS ARTIST IS IN YOUR TOP TRACKS</h2>
+                    ) :  
+                        userKnowsArtist? (
+                        <h2>YOU FOLLOW THIS ARTIST</h2>
+                    ) : (
+                        <h2>YOU DO NOT FOLLOW THIS ARTIST</h2>
+                    )}
+
+                    <Playlists playlists={playlistsArtistIsIn} />
                 </div>
             ) : <div> Loading... </div> }
             <div>

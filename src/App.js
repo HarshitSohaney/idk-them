@@ -85,10 +85,6 @@ function App() {
   }
   , []);
 
-  useEffect(() => {
-    console.log("name", userName);
-  }, [userName]);
-
   return (
       <div className="App">
         {spotifyAuthToken? (
@@ -103,7 +99,6 @@ function App() {
                 spotifyAuthToken={spotifyAuthToken}
               />
               )}
-              <Logout />
           </UserContext.Provider>
           </SearchContext.Provider>
         ) : (

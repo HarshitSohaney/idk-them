@@ -3,6 +3,7 @@ import SearchSuggest from "../components/search-suggest";
 import UserContext from "../contexts/userContext";
 import "../css/search.css";
 import { useNavigate } from "react-router-dom";
+import Logout from "../components/logout";
 
 function Search({spotifyAuthToken}) {
     const navigate = useNavigate();
@@ -53,7 +54,6 @@ function Search({spotifyAuthToken}) {
 
                 let data = await response.json();
                 playlistsArr = data.items;
-
                 if (playlistsArr.length === 50) {
                     response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=50&limit=50`, {
                         method: 'GET',
@@ -219,6 +219,7 @@ function Search({spotifyAuthToken}) {
                     })}
             </div>) : null} </div> ) : <h1>Loading...</h1>
             }
+            <Logout />
         </div>
     );
 }

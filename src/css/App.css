@@ -9,3 +9,28 @@ body > #root > div {
   justify-content: center;
   background-color: #121212;
 }
+
+#logout > button{
+  background-color: #121212;
+  color: white;
+  border: 2px solid #ffffff;
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-size: 1rem;
+  margin: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+#logout > button:hover {
+  border-color: #1ed760;
+}
+
+@medui screen and (max-width: 768px) {
+  #logout {
+    justify-content: center;
+  }
+  #logout > button {
+    font-size: 0.8rem;
+  }
+}
