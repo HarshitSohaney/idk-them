@@ -4,7 +4,6 @@ import UserContext from "../contexts/userContext";
 import "../css/search.css";
 import { useNavigate } from "react-router-dom";
 import Logout from "../components/logout";
-
 function Search({spotifyAuthToken}) {
     const navigate = useNavigate();
     const userInfo = useContext(UserContext);
@@ -90,6 +89,7 @@ function Search({spotifyAuthToken}) {
                     data = await response.json();
                     playlistsArr = playlistsArr.concat(data.items);
                     offset += 50;
+                    new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
                 userInfo.updateUserPlaylists(playlistsArr);

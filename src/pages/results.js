@@ -4,6 +4,7 @@ import UserContext from '../contexts/userContext';
 import SearchContext from '../contexts/searchContext';
 import AboutArtist from '../components/about-artist';
 import Playlists from '../components/playlists';
+import UserArtistState from '../components/user-artist-state';
 import "../css/results.css"
 
 function Results() {
@@ -113,7 +114,8 @@ function Results() {
             // if error occurs with bad access token, we need to redirect to login
             console.error('Error in results:', error);
         }
-        
+
+        console.log(userKnowsArtist);
         setDoneLoading(true);
     }, []);
 
@@ -123,14 +125,7 @@ function Results() {
                 <div style={{width: '100%'}}>
                     <AboutArtist artistInfo={artistInfo} />
 
-                    {isTopArtist? (
-                        <h2>THIS ARTIST IS IN YOUR TOP TRACKS</h2>
-                    ) :  
-                        userKnowsArtist? (
-                        <h2>YOU FOLLOW THIS ARTIST</h2>
-                    ) : (
-                        <h2>YOU DO NOT FOLLOW THIS ARTIST</h2>
-                    )}
+                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
 
                     <Playlists playlists={playlistsArtistIsIn} />
                 </div>
