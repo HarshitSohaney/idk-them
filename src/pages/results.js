@@ -20,47 +20,52 @@ function Results() {
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
 
     useEffect(() => {
-        try {
-            // we're gonna look for this artist now!
-            fetch(`https://api.spotify.com/v1/artists/${artistID}`, {
+        const getArtistInfo = async () => {
+            let response = await fetch(`https://api.spotify.com/v1/artists/${artistID}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${spotifyAuthToken}`
                 }
-            }).then(response => {
-                if (response.status === 401) {
-                    // if error occurs with bad access token, we need to redirect to login
-                    navigate('/login');
-                }
-                response.json().then(data => {
-                    setArtistInfo(data);
-                });
             });
 
-            // does the user know this artist?
-            fetch(`https://api.spotify.com/v1/me/following/contains?type=artist&ids=${artistID}`, {
+            let data = await response.json();
+
+            if (response.status === 401) {
+                // if error occurs with bad access token, we need to redirect to login
+                navigate('/login');
+            }
+            setArtistInfo(data);
+        }
+        
+        const doesUserKnowArtist = async () => {
+            let response = await fetch(`https://api.spotify.com/v1/me/following/contains?type=artist&ids=${artistID}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${spotifyAuthToken}`
                 }
-            }).then(response => {
-                if (response.status === 401) {
-                    // if error occurs with bad access token, we need to redirect to login
-                    navigate('/login');
-                }
-                response.json().then(data => {
-                    console.log(data);
-                    userInfo.updateUserFollowsSearchedArtist(data[0]);
-                    setUserKnowsArtist(data[0]);
-                });
             });
+
+            let data = await response.json();
+
+            if (response.status === 401) {
+                // if error occurs with bad access token, we need to redirect to login
+                navigate('/login');
+            }
+            userInfo.updateUserFollowsSearchedArtist(data[0]);
+            setUserKnowsArtist(data[0]);
+        }
+
+        try {
+            setUserKnowsArtist(false);
+            setDoneLoading(false);
+
+            let promises = [getArtistInfo(), doesUserKnowArtist()];
 
             // is the artist in the user's top tracks?
             userInfo.userTopTracks.forEach(track => {
                 track.artists.forEach(artist => {
-                    console.log(artist.name);
                     if (artist.id === artistID) {
                         userInfo.updateUserFollowsSearchedArtist(true);
                         setIsTopArtist(true);
@@ -80,7 +85,6 @@ function Results() {
                             userInfo.userPlaylists.forEach(playlist => {
                                 if (playlist.id === playlistID) {
                                     playlistMap.add(playlistID);
-                                    setUserKnowsArtist(true);
                                 }
                             }
                             );
@@ -101,8 +105,16 @@ function Results() {
                 });
             });
 
+            
+
             setPlaylistsArtistIsIn(playlistsToAdd);
-            setDoneLoading(true);
+            
+            Promise.all(promises).then(() => {
+                if(playlistsToAdd.length > 0) {
+                    setUserKnowsArtist(true);
+                }
+                setDoneLoading(true);
+            });
         } catch (error) {
             // if error occurs with bad access token, we need to redirect to login
             console.error('Error in results:', error);
@@ -117,7 +129,7 @@ function Results() {
                 <div style={{width: '100%'}}>
                     <AboutArtist artistInfo={artistInfo} />
 
-                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 2 : 1} />
+                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
 
                     <Playlists playlists={playlistsArtistIsIn} />
                 </div>

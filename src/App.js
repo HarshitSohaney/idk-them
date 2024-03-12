@@ -33,7 +33,6 @@ function App() {
   }
   const updateArtistInfo = (newArtistInfo) => {
     setArtistInfo(newArtistInfo);
-    console.log(newArtistInfo);
   }
   const updateSavedTracks = (newSavedTracks) => {
     setSavedTracks(newSavedTracks);

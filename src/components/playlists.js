@@ -2,7 +2,6 @@ import React from "react";
 import "../css/about-artist.css";
 
 function Playlists({playlists}) {
-    console.log("PLAYLISTS ARTIST IS IN", playlists);
     return (
         <div id="your-playlists">
             <h2>Your Playlist Appearances</h2>
