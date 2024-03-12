@@ -2,7 +2,7 @@ import React from "react";
 
 function Logout() {
     return (
-        <div id="logout">
+        <div className="action-button">
             <button onClick={() => {
                 localStorage.removeItem("authToken");
                 window.location.href = '/';

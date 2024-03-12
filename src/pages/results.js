@@ -18,6 +18,7 @@ function Results() {
     const [ playlistsArtistIsIn, setPlaylistsArtistIsIn ] = useState([]);
     const [ doneLoading, setDoneLoading ] = useState(false);
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
+    const [ similarArtists, setSimilarArtists ] = useState([]);
 
     useEffect(() => {
         const getArtistInfo = async () => {
@@ -57,11 +58,30 @@ function Results() {
             setUserKnowsArtist(data[0]);
         }
 
+        const getSimilarArtists = async () => {
+            let response = await fetch(`https://api.spotify.com/v1/artists/${artistID}/related-artists`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${spotifyAuthToken}`
+                }
+            });
+
+            let data = await response.json();
+
+            if (response.status === 401) {
+                // if error occurs with bad access token, we need to redirect to login
+                navigate('/login');
+            }
+            // just take the first 5 similar artists
+            setSimilarArtists(data.artists.slice(0, 5));
+        }
+
         try {
             setUserKnowsArtist(false);
             setDoneLoading(false);
 
-            let promises = [getArtistInfo(), doesUserKnowArtist()];
+            let promises = [getArtistInfo(), doesUserKnowArtist(), getSimilarArtists()];
 
             // is the artist in the user's top tracks?
             userInfo.userTopTracks.forEach(track => {
@@ -105,8 +125,6 @@ function Results() {
                 });
             });
 
-            
-
             setPlaylistsArtistIsIn(playlistsToAdd);
             
             Promise.all(promises).then(() => {
@@ -131,14 +149,15 @@ function Results() {
 
                     <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
 
-                    <Playlists playlists={playlistsArtistIsIn} />
+                    <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
+                    <Playlists playlists={similarArtists} type="similar-artists" />
                 </div>
             ) : <div> Loading... </div> }
-            <div>
-                <input type="button" value="Back to Search" onClick={() => {
+            <div className='action-button'>
+                <button onClick={() => {
                     updateArtistID(null);
                     navigate('/')
-                }} />
+                }}> New Search </button>
             </div>
         </div>
     );

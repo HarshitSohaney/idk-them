@@ -180,14 +180,12 @@ function Search({spotifyAuthToken}) {
                 playlists.forEach(playlist => {
                     playlistMap.set(playlist.id, []);
                 });
-                console.log("init 1", playlistMap);
                 playlistMap.forEach(async (value, key) => {
                     let tracks = await getTracksForPlaylist(playlists.find(playlist => playlist.id === key));
                     playlistMap.set(key, tracks);
                 }
                 );
 
-                console.log("init 2", playlistMap);
                 userInfo.updatePlaylistTracks(playlistMap);
             }
 

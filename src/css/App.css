@@ -1,5 +1,5 @@
 body > #root > div {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .App {
@@ -10,12 +10,13 @@ body > #root > div {
   background-color: #121212;
 }
 
-#logout {
+.action-button {
   position: fixed;
   bottom: 0;
+  right: 0;
 }
 
-#logout > button{
+.action-button > button{
   background-color: #121212;
   color: white;
   border: 2px solid #ffffff;
@@ -27,7 +28,7 @@ body > #root > div {
   transition: border-color 0.3s ease;
 }
 
-#logout > button:hover {
+.action-button > button:hover {
   border-color: #1ed760;
 }
 
