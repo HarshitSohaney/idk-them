@@ -81,8 +81,6 @@ function Results() {
             setUserKnowsArtist(false);
             setDoneLoading(false);
 
-            let promises = [getArtistInfo(), doesUserKnowArtist(), getSimilarArtists()];
-
             // is the artist in the user's top tracks?
             userInfo.userTopTracks.forEach(track => {
                 track.artists.forEach(artist => {
@@ -94,39 +92,59 @@ function Results() {
                 });
             });
 
-            // get playlists the artist is in
-            const playlistMap = new Set();
-
-            // format for playlistTracks is {playlistID: [track1, track2, ...]}
-            userInfo.playlistTracks.forEach((tracks, playlistID) => {
-                tracks.forEach(track => {
-                    track.track?.artists.forEach(artist => {
-                        if (artist.id === artistID) {
-                            userInfo.userPlaylists.forEach(playlist => {
-                                if (playlist.id === playlistID) {
-                                    playlistMap.add(playlistID);
-                                }
-                            }
-                            );
-                        }
-                    });
-                });
-            }
-            );
-
             let playlistsToAdd = [];
-            let addedPlaylists = new Set();
-            playlistMap.forEach(playlistID => {
-                userInfo.userPlaylists.forEach(playlist => {
-                    if (playlist.id === playlistID && !addedPlaylists.has(playlistID)) {
-                        playlistsToAdd.push(playlist);
-                        addedPlaylists.add(playlistID);
-                    }
-                });
-            });
+            const getAllPlaylists = async () => {
+                // get playlists the artist is in
+                const playlistMap = new Set();
 
-            setPlaylistsArtistIsIn(playlistsToAdd);
+                // Get playlists from indexDB
+                // Setup or open the indexedDB
+                var request = indexedDB.open('user_data', 1);
+                request.onsuccess = function(event) {
+                    var db = event.target.result;
+                    var transaction = db.transaction(['playlists'], 'readwrite');
+                    var objectStore = transaction.objectStore('playlists');
+                    var request = objectStore.get('playlists');
+                    request.onsuccess = function(event) {
+                        var userInfo = request.result;
+
+                        // Playlists may not exist yet
+                        if (userInfo === undefined) {
+                            return;
+                        }
+                        // format for playlistTracks is {playlistID: [track1, track2, ...]}
+                        userInfo.playlistTracks.forEach((tracks, playlistID) => {
+                            tracks.forEach(track => {
+                                track.track?.artists.forEach(artist => {
+                                    if (artist.id === artistID) {
+                                        userInfo.userPlaylists.forEach(playlist => {
+                                            if (playlist.id === playlistID) {
+                                                playlistMap.add(playlistID);
+                                            }
+                                        }
+                                        );
+                                    }
+                                });
+                            });
+                        }
+                        );
+
+                        let addedPlaylists = new Set();
+                        playlistMap.forEach(playlistID => {
+                            userInfo.userPlaylists.forEach(playlist => {
+                                if (playlist.id === playlistID && !addedPlaylists.has(playlistID)) {
+                                    playlistsToAdd.push(playlist);
+                                    addedPlaylists.add(playlistID);
+                                }
+                            });
+                        });
+
+                        setPlaylistsArtistIsIn(playlistsToAdd);
+                    };
+                }
+            }
             
+            let promises = [getArtistInfo(), doesUserKnowArtist(), getSimilarArtists(), getAllPlaylists()];
             Promise.all(promises).then(() => {
                 if(playlistsToAdd.length > 0) {
                     setUserKnowsArtist(true);

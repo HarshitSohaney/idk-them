@@ -98,6 +98,9 @@ function App() {
   }
   , []);
 
+  // Setup indexDB for user data
+  
+
   return (
       <div className="App">
         {spotifyAuthToken? (

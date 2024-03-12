@@ -99,7 +99,10 @@ function Login() {
                 // We have an access token, so we can now get the user's profile
                 const accessToken = data.access_token;
                 localStorage.setItem('authToken', accessToken);
-
+                localStorage.setItem('refreshToken', data.refresh_token);
+                localStorage.setItem('expiresAt', new Date().getTime() + data.expires_in * 1000);
+                localStorage.setItem('setTime', new Date().getTime());
+                
                 navigate('/');
             } else {
                 // Something went wrong with the authentication
