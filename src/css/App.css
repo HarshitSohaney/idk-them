@@ -31,7 +31,7 @@ body > #root > div {
   border-color: #1ed760;
 }
 
-@medui screen and (max-width: 768px) {
+@media screen and (max-width: 768px) {
   #logout {
     justify-content: center;
   }

@@ -14,157 +14,196 @@ function Search({spotifyAuthToken}) {
     const [doneLoading, setDoneLoading] = useState(false);
 
     useEffect(() => {
-        const getUserInfo = async () => {
-            try {
-                let response = await fetch('https://api.spotify.com/v1/me', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-
-                if (response.status === 401) {
-                    localStorage.removeItem('authToken');
-                    navigate('/login');
-                    return;
-                }
-
-                const data = await response.json();
-                userInfo.updateUserID(data.id);
-                setUserID(data.id);
-                userInfo.updateUserName(data.display_name);
-            } catch (error) {
-                console.error('Error fetching user info:', error);
-            }
-        };
-
-        const getPlaylists = async () => {
-            let response;
-            try {
-                let playlistsArr = [];
-                response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=0&limit=50`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-
-                let data = await response.json();
-                playlistsArr = data.items;
-                if (playlistsArr.length === 50) {
-                    response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=50&limit=50`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${spotifyAuthToken}`
-                        }
-                    });
-
-                    data = await response.json();
-                    playlistsArr = playlistsArr.concat(data.items);
-                }
-
-                // get all of the user's personal playlists
-                response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-                data = await response.json();
-                playlistsArr = playlistsArr.concat(data.items);
-
-                let offset = 50;
-                while(data.items.length === 50) {
-                    response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50&offset=${offset}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${spotifyAuthToken}`
-                        }
-                    });
-                    data = await response.json();
-                    playlistsArr = playlistsArr.concat(data.items);
-                    offset += 50;
-                    new Promise(resolve => setTimeout(resolve, 1000));
-                }
-
-                userInfo.updateUserPlaylists(playlistsArr);
-
-            } catch (error) {
-                console.error('Error fetching playlists:', error);
-                // if we have rate limited, we need to redirect to login
-                if (response.status === 429) {
-                    // get amount of time we need to wait
-                    alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
-                    await new Promise((resolve) => setTimeout(resolve, 60 * 60 * 1000));
-                    window.location.reload();
-                }
-            }
-        };
-
-        const getTopTracks = async () => {
-            try {
-                let response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-                const data = await response.json();
-                userInfo.updateUserTopTracks(data.items);
-            } catch (error) {
-                console.error('Error fetching top tracks:', error);
-            }
-        };
-
-        const getFollowedArtists = async () => {
-            try {
-                let response = await fetch(`https://api.spotify.com/v1/me/following?type=artist`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-                const data = await response.json();
-                userInfo.updateUserFollowedArtists(data.artists.items);
-            } catch (error) {
-                console.error('Error fetching followed artists:', error);
-            }
-        };
-
-        const getSavedTracks = async () => {
-            try {
-                let response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                });
-                const data = await response.json();
-                userInfo.updateSavedTracks(data.items);
-            } catch (error) {
-                console.error('Error fetching saved tracks:', error);
-            }
-        };
-
-        if (userId !== null) {
-            getPlaylists();
+        if(userInfo.initDone) {
+            setDoneLoading(true);
         }
+        else {
+            const getUserInfo = async () => {
+                try {
+                    let response = await fetch('https://api.spotify.com/v1/me', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+    
+                    if (response.status === 401) {
+                        localStorage.removeItem('authToken');
+                        navigate('/login');
+                        return;
+                    }
+    
+                    const data = await response.json();
+                    userInfo.updateUserID(data.id);
+                    setUserID(data.id);
+                    userInfo.updateUserName(data.display_name);
+                } catch (error) {
+                    console.error('Error fetching user info:', error);
+                }
+            };
+    
+            const getPlaylists = async () => {
+                let response;
+                try {
+                    let playlistsGetter = async () => {
+                        let playlistsArr = [];
+                        response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=0&limit=50`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${spotifyAuthToken}`
+                            }
+                        });
+        
+                        let data = await response.json();
+                        playlistsArr = data.items;
+                        if (playlistsArr.length === 50) {
+                            response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=50&limit=50`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${spotifyAuthToken}`
+                                }
+                            });
+        
+                            data = await response.json();
+                            playlistsArr = playlistsArr.concat(data.items);
+                        }
+        
+                        // get all of the user's personal playlists
+                        response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${spotifyAuthToken}`
+                            }
+                        });
+                        data = await response.json();
+                        playlistsArr = playlistsArr.concat(data.items);
+        
+                        let offset = 50;
+                        while(data.items.length === 50) {
+                            response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50&offset=${offset}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${spotifyAuthToken}`
+                                }
+                            });
+                            data = await response.json();
+                            playlistsArr = playlistsArr.concat(data.items);
+                            offset += 50;
+                            new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+        
+                        userInfo.updateUserPlaylists(playlistsArr);
+                        return playlistsArr;
+                    }
 
-        let promises = [getUserInfo(), getTopTracks(), getFollowedArtists(), getSavedTracks()];
-        Promise.all(promises).then(() => {
-            setDoneLoading(true);
-        }).catch(error => {
-            console.error('Error fetching user data:', error);
-            setDoneLoading(true);
-        });
+                    let playlistsArr = await playlistsGetter();
+                    await getAllTracksForAllPlaylists(playlistsArr);
+                } catch (error) {
+                    console.error('Error fetching playlists:', error);
+                    // if we have rate limited, we need to redirect to login
+                    if (response.status === 429) {
+                        // get amount of time we need to wait
+                        alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
+                        await new Promise((resolve) => setTimeout(resolve, 60 * 60 * 1000));
+                        window.location.reload();
+                    }
+                }
+            };
+    
+            const getTopTracks = async () => {
+                try {
+                    let response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    const data = await response.json();
+                    userInfo.updateUserTopTracks(data.items);
+                } catch (error) {
+                    console.error('Error fetching top tracks:', error);
+                }
+            };
+    
+            const getFollowedArtists = async () => {
+                try {
+                    let response = await fetch(`https://api.spotify.com/v1/me/following?type=artist`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    const data = await response.json();
+                    userInfo.updateUserFollowedArtists(data.artists.items);
+                } catch (error) {
+                    console.error('Error fetching followed artists:', error);
+                }
+            };
+    
+            const getSavedTracks = async () => {
+                try {
+                    let response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    const data = await response.json();
+                    userInfo.updateSavedTracks(data.items);
+                } catch (error) {
+                    console.error('Error fetching saved tracks:', error);
+                }
+            };
+            
+            const getTracksForPlaylist = async (playlist) => {
+                let response = await fetch(playlist.tracks.href, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${spotifyAuthToken}`
+                    }
+                });
+                let data = await response.json();
+                return data.items;
+            };
+
+            const getAllTracksForAllPlaylists = async (playlists) => {
+                let playlistMap = new Map();
+                playlists.forEach(playlist => {
+                    playlistMap.set(playlist.id, []);
+                });
+                console.log("init 1", playlistMap);
+                playlistMap.forEach(async (value, key) => {
+                    let tracks = await getTracksForPlaylist(playlists.find(playlist => playlist.id === key));
+                    playlistMap.set(key, tracks);
+                }
+                );
+
+                console.log("init 2", playlistMap);
+                userInfo.updatePlaylistTracks(playlistMap);
+            }
+
+            if (userId !== null) {
+                getPlaylists();
+            }
+    
+            let promises = [getUserInfo(), getTopTracks(), getFollowedArtists(), getSavedTracks()];
+            Promise.all(promises).then(() => {
+                setDoneLoading(true);
+                userInfo.updateInitDone(true);
+            }).catch(error => {
+                console.error('Error fetching user data:', error);
+                setDoneLoading(true);
+            });
+        }
     }, [spotifyAuthToken, userId]);
 
     useEffect(() => {

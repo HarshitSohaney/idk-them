@@ -62,7 +62,6 @@ function Results() {
                 track.artists.forEach(artist => {
                     console.log(artist.name);
                     if (artist.id === artistID) {
-                        console.log('found artist in top tracks');
                         userInfo.updateUserFollowsSearchedArtist(true);
                         setIsTopArtist(true);
                         setUserKnowsArtist(true);
@@ -70,52 +69,45 @@ function Results() {
                 });
             });
 
-            let promises = [];
-            let tracks = new Set();
-            let playlistMap = new Map();
-            for(let playlist of userInfo.userPlaylists) {
-                new Promise(resolve => setTimeout(resolve, 500));
-                promises.push(
-                // get tracks in playlist
-                fetch(playlist.tracks.href, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${spotifyAuthToken}`
-                    }
-                }).then(response => {
-                    if (response.status === 401) {
-                        localStorage.removeItem('authToken');
-                        // if error occurs with bad access token, we need to redirect to login
-                        navigate('/login');
-                    }
-                    response.json().then(data => {
-                        for(let item of data.items? data.items : []) {
-                            item.track?.artists.forEach(artist => {
-                                if(artist.id === artistID && !playlistMap.has(playlist.id)) {
-                                    playlistMap.set(playlist.id, playlist);
+            // get playlists the artist is in
+            const playlistMap = new Set();
+
+            // format for playlistTracks is {playlistID: [track1, track2, ...]}
+            userInfo.playlistTracks.forEach((tracks, playlistID) => {
+                tracks.forEach(track => {
+                    track.track?.artists.forEach(artist => {
+                        if (artist.id === artistID) {
+                            userInfo.userPlaylists.forEach(playlist => {
+                                if (playlist.id === playlistID) {
+                                    playlistMap.add(playlistID);
                                     setUserKnowsArtist(true);
-                                    return;
                                 }
-                            });
+                            }
+                            );
                         }
                     });
-                }));
+                });
             }
+            );
 
-            Promise.all(promises).then(() => {
-                setPlaylistsArtistIsIn(Array.from(playlistMap.values()));
-                setDoneLoading(true);
-            }).catch(error => {
-                console.error('Error fetching playlists:', error);
+            let playlistsToAdd = [];
+            let addedPlaylists = new Set();
+            playlistMap.forEach(playlistID => {
+                userInfo.userPlaylists.forEach(playlist => {
+                    if (playlist.id === playlistID && !addedPlaylists.has(playlistID)) {
+                        playlistsToAdd.push(playlist);
+                        addedPlaylists.add(playlistID);
+                    }
+                });
             });
 
+            setPlaylistsArtistIsIn(playlistsToAdd);
+            setDoneLoading(true);
         } catch (error) {
             // if error occurs with bad access token, we need to redirect to login
             console.error('Error in results:', error);
         }
 
-        console.log(userKnowsArtist);
         setDoneLoading(true);
     }, []);
 
@@ -125,7 +117,7 @@ function Results() {
                 <div style={{width: '100%'}}>
                     <AboutArtist artistInfo={artistInfo} />
 
-                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
+                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 2 : 1} />
 
                     <Playlists playlists={playlistsArtistIsIn} />
                 </div>

@@ -19,6 +19,8 @@ function App() {
   const [userFollowedArtists, setUserFollowedArtists] = useState([]);
   const [userFollowsSearchedArtist, setUserFollowsSearchedArtist] = useState(false);
   const [artistID, setArtistID] = useState(null);
+  const [initDone, setInitDone] = useState(false);
+  const [playlistTracks, setPlaylistTracks] = useState([]);
 
   const updateUserID = (newUserID) => {
     setUserID(newUserID);
@@ -50,6 +52,14 @@ function App() {
     setArtistID(newArtistID);
   }
 
+  const updateInitDone = (newInitDone) => {
+    setInitDone(newInitDone);
+  }
+
+  const updatePlaylistTracks = (newPlaylistTracks) => {
+    setPlaylistTracks(newPlaylistTracks);
+  }
+
   const userContext = {
     userID,
     updateUserID,
@@ -67,6 +77,10 @@ function App() {
     updateUserFollowedArtists,
     userFollowsSearchedArtist,
     updateUserFollowsSearchedArtist,
+    initDone,
+    updateInitDone,
+    playlistTracks,
+    updatePlaylistTracks,
   };
 
   const searchContext = {
