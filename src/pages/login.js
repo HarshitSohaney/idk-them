@@ -4,6 +4,7 @@ import { useNavigate } from'react-router-dom';
 import env
  from 'react-dotenv';
 import "../css/login.css";
+import MadeBy from '../components/made-by';
 const SCOPES = 
     `user-read-private
     user-library-read
@@ -123,7 +124,7 @@ function Login() {
     }, []);
 
     return (
-        <div class="login-root">
+        <div className="login-root">
             <h1>Do I know them?</h1>
             <button id="login-spotify" onClick={async () => {
                 // TODO: Set the auth tokens in the local storage
@@ -131,6 +132,7 @@ function Login() {
                 // Spotify login setup
                 const authToken = await getAuthCode();
             }}>Login With Spotify</button>
+            <MadeBy />
         </div>
     );
 }

@@ -32,6 +32,25 @@ body > #root > div {
   border-color: #1ed760;
 }
 
+#made-by {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  color: rgb(114, 114, 114);
+  padding: 10px;
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+#made-by a {
+  color: #ffffff;
+  transition: color 0.4s ease;
+}
+
+#made-by a:hover {
+  color:#1ed760;
+}
+
 @media screen and (max-width: 768px) {
   #logout {
     justify-content: center;
