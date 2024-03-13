@@ -6,7 +6,7 @@ import "../css/user-artist-state.css"
 
 function UserArtistState({userArtistState}) {
     const images = [know_them_well];
-    const states = ["You know this artist well", "You know this artist", "You don't know this artist"];
+    const states = ["You love them! They're all over your library", "You know this artist, they appear in some of your playlists!", "You don't know this artist... yet :) Let's change that"];
 
     return (
         <div id="user-artist-state">

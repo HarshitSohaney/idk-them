@@ -5,7 +5,7 @@ function Loader({string}) {
     return (
         <div id="loader-wrapper">       
             <h3>{string}</h3>
-            <div class="loader">
+            <div className="loader">
             </div>
         </div>
     );

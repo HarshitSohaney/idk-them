@@ -6,6 +6,7 @@ import AboutArtist from '../components/about-artist';
 import Playlists from '../components/playlists';
 import UserArtistState from '../components/user-artist-state';
 import "../css/results.css"
+import SongsYouKnow from '../components/songs-you-know';
 
 function Results() {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ function Results() {
     const [ doneLoading, setDoneLoading ] = useState(false);
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
     const [ similarArtists, setSimilarArtists ] = useState([]);
+    const [tracksUserKnows, setTracksUserKnows] = useState([]);
 
     useEffect(() => {
         const getArtistInfo = async () => {
@@ -99,6 +101,7 @@ function Results() {
 
             // get playlists from local storage
             let playlistsToAdd = [];
+            let tracksMap = new Map();
             let playlists = localStorage.getItem('playlists');
             playlists = JSON.parse(playlists);
 
@@ -108,6 +111,8 @@ function Results() {
                     track.artists?.forEach(artist => {
                         if (artist.id === artistID) {
                             playlistMap.add(playlist);
+                            tracksMap.set(playlist, track);
+                            return;
                         }
                     });
                 });
@@ -117,6 +122,10 @@ function Results() {
 
             playlistMap.forEach(playlist => {
                 playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
+            });
+
+            tracksMap.forEach(track => {
+                tracksUserKnows.push(track);
             });
 
             setPlaylistsArtistIsIn(playlistsToAdd);
@@ -142,6 +151,7 @@ function Results() {
                     <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
 
                     <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
+                    {userKnowsArtist? <SongsYouKnow tracks={tracksUserKnows} /> : null} 
                     <Playlists playlists={similarArtists} type="similar-artists" />
                 </div>
             ) : <div> Loading... </div> }
