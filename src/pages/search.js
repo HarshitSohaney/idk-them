@@ -38,6 +38,7 @@ function Search({spotifyAuthToken}) {
                     userInfo.updateUserID(data.id);
                     setUserID(data.id);
                     userInfo.updateUserName(data.display_name);
+                    return data.id;
                 } catch (error) {
                     console.error('Error fetching user info:', error);
                 }
@@ -47,7 +48,7 @@ function Search({spotifyAuthToken}) {
                 let response;
                 try {
                     let playlistsGetter = async () => {
-                        let playlistsArr = [];
+                        let playlistsMap = new Map();
                         response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=0&limit=50`, {
                             method: 'GET',
                             headers: {
@@ -57,8 +58,12 @@ function Search({spotifyAuthToken}) {
                         });
         
                         let data = await response.json();
-                        playlistsArr = data.items;
-                        if (playlistsArr.length === 50) {
+                        for (const playlist of data.items) {
+                            // set the playlist id as the key and the playlist object as the value
+                            playlistsMap.set(playlist.id, playlist);
+                        }
+
+                        if (data.items === 50) {
                             response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=50&limit=50`, {
                                 method: 'GET',
                                 headers: {
@@ -68,7 +73,10 @@ function Search({spotifyAuthToken}) {
                             });
         
                             data = await response.json();
-                            playlistsArr = playlistsArr.concat(data.items);
+                            for (const playlist of data.items) {
+                                // set the playlist id as the key and the playlist object as the value
+                                playlistsMap.set(playlist.id, playlist);
+                            }
                         }
         
                         // get all of the user's personal playlists
@@ -80,7 +88,10 @@ function Search({spotifyAuthToken}) {
                             }
                         });
                         data = await response.json();
-                        playlistsArr = playlistsArr.concat(data.items);
+                        for (const playlist of data.items) {
+                            // set the playlist id as the key and the playlist object as the value
+                            playlistsMap.set(playlist.id, playlist);
+                        }
         
                         let offset = 50;
                         while(data.items.length === 50) {
@@ -92,17 +103,34 @@ function Search({spotifyAuthToken}) {
                                 }
                             });
                             data = await response.json();
-                            playlistsArr = playlistsArr.concat(data.items);
+                            for(const playlist of data.items) {
+                                playlistsMap.set(playlist.id, playlist);
+                            }
+
                             offset += 50;
-                            new Promise(resolve => setTimeout(resolve, 1000));
                         }
-        
-                        userInfo.updateUserPlaylists(playlistsArr);
-                        return playlistsArr;
+                        
+                        let plainObject = {};
+                        playlistsMap.forEach((value, key) => {
+                            plainObject[key] = value;
+                        });
+
+                        localStorage.setItem('playlistsObjs', JSON.stringify(plainObject));
+                        return playlistsMap;
                     }
 
-                    let playlistsArr = await playlistsGetter();
-                    await getAllTracksForAllPlaylists(playlistsArr);
+                    playlistsGetter().then(async (map) => {
+                        let tracks = await getAllTracksForAllPlaylists(Array.from(map.values()));
+                        // Convert playlistMap to a plain object before storing in localStorage
+                        const plainObject = {};
+                        for (const [key, value] of tracks) {
+                            plainObject[key] = value;
+                        }
+
+                        localStorage.setItem('playlists', JSON.stringify(plainObject));
+                    });
+
+                    return true;
                 } catch (error) {
                     console.error('Error fetching playlists:', error);
                     // if we have rate limited, we need to redirect to login
@@ -126,6 +154,8 @@ function Search({spotifyAuthToken}) {
                     });
                     const data = await response.json();
                     userInfo.updateUserTopTracks(data.items);
+
+                    return true;
                 } catch (error) {
                     console.error('Error fetching top tracks:', error);
                 }
@@ -142,6 +172,8 @@ function Search({spotifyAuthToken}) {
                     });
                     const data = await response.json();
                     userInfo.updateUserFollowedArtists(data.artists.items);
+
+                    return;
                 } catch (error) {
                     console.error('Error fetching followed artists:', error);
                 }
@@ -158,6 +190,7 @@ function Search({spotifyAuthToken}) {
                     });
                     const data = await response.json();
                     userInfo.updateSavedTracks(data.items);
+                    return;
                 } catch (error) {
                     console.error('Error fetching saved tracks:', error);
                 }
@@ -177,32 +210,52 @@ function Search({spotifyAuthToken}) {
 
             const getAllTracksForAllPlaylists = async (playlists) => {
                 let playlistMap = new Map();
-                playlists.forEach(playlist => {
+                for (const playlist of playlists) {
                     playlistMap.set(playlist.id, []);
-                });
-                playlistMap.forEach(async (value, key) => {
+                }
+                
+                for (const [key, value] of playlistMap) {
                     let tracks = await getTracksForPlaylist(playlists.find(playlist => playlist.id === key));
+
+                    tracks = tracks.map(track => {
+                        // get the artists for the track
+                        let artists = track.track?.artists.map(artist => {
+                            return {
+                                name: artist.name,
+                                id: artist.id
+                            };
+                        });
+                        return {
+                            name: track.track?.name,
+                            artists: artists,
+                        };
+                    });
                     playlistMap.set(key, tracks);
                 }
-                );
-
+                
                 userInfo.updatePlaylistTracks(playlistMap);
+                return playlistMap;
             }
 
-            if (userId !== null) {
-                getPlaylists();
-            }
-    
-            let promises = [getUserInfo(), getTopTracks(), getFollowedArtists(), getSavedTracks()];
-            Promise.all(promises).then(() => {
-                setDoneLoading(true);
+            const fetchData = async () => {
+                let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks()];
+
+                // get the user's playlists after getting the user's info
+                let userId = await getUserInfo();
+                if(userId !== null && localStorage.getItem('playlists') === null){
+                    promises.push(getPlaylists());
+                }
+
+                await Promise.all(promises);
+                console.log('All promises resolved');
+
                 userInfo.updateInitDone(true);
-            }).catch(error => {
-                console.error('Error fetching user data:', error);
                 setDoneLoading(true);
-            });
+            }
+
+            fetchData();
         }
-    }, [spotifyAuthToken, userId]);
+    }, []);
 
     useEffect(() => {
         if(searchTerm !== "" && searchTerm.length > 2 && spotifyAuthToken !== null) {

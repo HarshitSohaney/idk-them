@@ -114,7 +114,11 @@ function Login() {
         /* The code snippet you provided is part of a React component called `Login`. In this
         component, the `useEffect` hook is being used to perform certain actions when the component
         mounts. */
-        console.log('checking auth in login')
+        // remove local storage items if they exist
+        if(localStorage.getItem('authToken') === null) {
+            localStorage.removeItem('playlists');
+            localStorage.removeItem('playlistsObjs');
+        }
         const authToken = handleAuthCode();
     }, []);
 

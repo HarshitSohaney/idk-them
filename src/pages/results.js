@@ -97,32 +97,26 @@ function Results() {
             // get playlists the artist is in
             const playlistMap = new Set();
 
-            // format for playlistTracks is {playlistID: [track1, track2, ...]}
-            userInfo.playlistTracks.forEach((tracks, playlistID) => {
-                tracks.forEach(track => {
-                    track.track?.artists.forEach(artist => {
+            // get playlists from local storage
+            let playlistsToAdd = [];
+            let playlists = localStorage.getItem('playlists');
+            playlists = JSON.parse(playlists);
+
+            // playlists is an object with keys being the playlist id and values being an array of tracks
+            for (let playlist in playlists) {
+                playlists[playlist].forEach(track => {
+                    track.artists?.forEach(artist => {
                         if (artist.id === artistID) {
-                            userInfo.userPlaylists.forEach(playlist => {
-                                if (playlist.id === playlistID) {
-                                    playlistMap.add(playlistID);
-                                }
-                            }
-                            );
+                            playlistMap.add(playlist);
                         }
                     });
                 });
             }
-            );
 
-            let playlistsToAdd = [];
-            let addedPlaylists = new Set();
-            playlistMap.forEach(playlistID => {
-                userInfo.userPlaylists.forEach(playlist => {
-                    if (playlist.id === playlistID && !addedPlaylists.has(playlistID)) {
-                        playlistsToAdd.push(playlist);
-                        addedPlaylists.add(playlistID);
-                    }
-                });
+            let playlistObjs = localStorage.getItem('playlistsObjs');
+
+            playlistMap.forEach(playlist => {
+                playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
             });
 
             setPlaylistsArtistIsIn(playlistsToAdd);
@@ -137,8 +131,6 @@ function Results() {
             // if error occurs with bad access token, we need to redirect to login
             console.error('Error in results:', error);
         }
-
-        setDoneLoading(true);
     }, []);
 
     return (
