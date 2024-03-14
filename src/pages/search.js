@@ -7,10 +7,10 @@ import Logout from "../components/logout";
 import MadeBy from "../components/made-by.js";
 import Loader from "../components/loader";
 
-function Search({spotifyAuthToken}) {
+function Search() {
     const navigate = useNavigate();
     const userInfo = useContext(UserContext);
-
+    const spotifyAuthToken = localStorage.getItem('authToken');
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [userId, setUserID] = useState(null);
@@ -59,13 +59,18 @@ function Search({spotifyAuthToken}) {
                 userInfo.updateUserID(data.id);
                 setUserID(data.id);
                 userInfo.updateUserName(data.display_name);
-                return data.id;
+                
+                if(localStorage.getItem('playlists') === null) {
+                    await getPlaylists(data.id);
+                } else {
+                    window.postMessage('done', '*');
+                }
             } catch (error) {
                 console.error('Error fetching user info:', error);
             }
         };
 
-        const getPlaylists = async () => {
+        const getPlaylists = async (id) => {
             let response;
             let numRequests;
             if(localStorage.getItem('numRequests') !== null) {
@@ -74,7 +79,6 @@ function Search({spotifyAuthToken}) {
                 numRequests = 0;
             }
 
-            let isRateLimited = false;
             if(localStorage.getItem('lastRateLimit') !== null) {
                 let lastRateLimit = parseInt(localStorage.getItem('lastRateLimit'));
                 let timeSinceRateLimit = Date.now() - lastRateLimit;
@@ -83,7 +87,7 @@ function Search({spotifyAuthToken}) {
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('playlists');
                     localStorage.removeItem('code_verifier');
-                    navigate('/login');
+                    navigate('/');
                     return;
                 } else {
                     localStorage.removeItem('lastRateLimit');
@@ -106,7 +110,7 @@ function Search({spotifyAuthToken}) {
             try {
                 let playlistsGetter = async () => {
                     let playlistsMap = new Map();
-                    response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=0&limit=50`, {
+                    response = await fetch(`https://api.spotify.com/v1/users/${id}/playlists?offset=0&limit=50`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -124,7 +128,7 @@ function Search({spotifyAuthToken}) {
 
                     let offset = 50;
                     while(data.items.length === 50) {
-                        response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?&offset=${offset}&limit=50`, {
+                        response = await fetch(`https://api.spotify.com/v1/users/${id}/playlists?&offset=${offset}&limit=50`, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -252,7 +256,7 @@ function Search({spotifyAuthToken}) {
                     followedArtists = followedArtists.concat(data.artists.items);
                 }
                 
-                userInfo.updateFollowedArtists(followedArtists);
+                userInfo.updateUserFollowedArtists(followedArtists);
                 return;
             } catch (error) {
                 console.error('Error fetching followed artists:', error);
@@ -343,16 +347,9 @@ function Search({spotifyAuthToken}) {
         };
 
         const fetchData = async () => {
-            let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks()];
+            let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks(), getUserInfo()];
 
             // get the user's playlists after getting the user's info
-            let userId = await getUserInfo();
-            if(userId !== null && localStorage.getItem('playlists') === null){
-                promises.push(getPlaylists());
-            } else {
-                window.postMessage('done', '*');
-            }
-
             await Promise.all(promises);
 
             userInfo.updateInitDone(true);
