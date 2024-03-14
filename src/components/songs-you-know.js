@@ -1,15 +1,34 @@
 import React, { useEffect, useState } from "react";
+import "../css/songs-you-know.css";
 
 function SongsYouKnow({tracks}) {
+    console.log("track data", tracks);
+    // tracks is a map from track id to track object of type {track: track, playlists: [playlist images]}
+    // show the tracks with the most playlist appearances first
+    tracks = new Map([...tracks].sort((a, b) => {
+        return b[1].playlists.length - a[1].playlists.length;
+    }));
+
     return (
         <div id="songs-you-know">
-            <h3>Songs you know of</h3>
+            <h2>Songs you know</h2>
             <div className="songs-list">
-                {tracks.map((track, index) => {
+                {Array.from(tracks).map(track => {
                     return (
-                        <div className="song-item" key={index}>
-                            <img src={track.playlistImg} alt={track.name} />
-                            <h4>{track.name}</h4>
+                        <div className="song-item" key={track[1].track.id} onClick={() => {
+                            window.open(track[1].track.trackURL, "_blank");
+                        }}>
+                            <div className="item-info">
+                                <h4>{track[1].track.name}</h4>
+                                <p>{track[1].track.album.name}</p>
+                            </div>
+                            <div className="playlists">
+                                {track[1].playlists.map(playlist => {
+                                    return (
+                                        <img src={playlist} alt="Playlist" />
+                                    );
+                                })}
+                            </div>
                         </div>
                     );
                 })}

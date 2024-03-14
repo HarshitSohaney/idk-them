@@ -1,0 +1,105 @@
+#songs-you-know {
+    display: flex;
+    flex-direction: column;
+    margin: 1em;
+}
+
+#songs-you-know h2 {
+    color: white;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.songs-list {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    width: 60%;
+    height: 400px;
+    background: rgb(29,86,101);
+    background: linear-gradient(45deg, rgba(29,86,101,1) 0%, rgba(23,55,68,1) 100%); 
+    border-radius: 20px;
+    margin: 1em;
+    padding: 1em 0;
+}
+
+.songs-list::-webkit-scrollbar {
+    display: none;
+}
+
+.song-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.4em;
+    border-radius: 20px;
+    cursor: pointer;
+    height: max-content;
+    color: white;
+    align-items: center;
+}
+
+.song-item img {
+    width: 5em;
+    height: 5em;
+    border-radius: 8px;
+    margin: 0 1em;
+}
+
+.song-item p {
+    margin: 0;
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 1em;
+}
+
+.item-info p {
+    color: rgb(138, 214, 255);
+    font-style: italic;
+}
+
+.item-info h4 {
+    margin-bottom: 5px;
+}
+
+.playlists {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    overflow: scroll;
+    scrollbar-width: none;
+}
+
+.playlists::-webkit-scrollbar {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .songs-list {
+        width: 100%;
+        margin: 0;
+        height: 300px;
+        font-size: smaller;
+    }
+    .item-info {
+        width: 50%;
+    }
+    .playlists {
+        width: 50%;
+    }
+    .playlists img {
+        width: 4em;
+        height: 4em;
+        margin: 0 0.5em;
+    }
+    
+}

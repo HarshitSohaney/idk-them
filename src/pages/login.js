@@ -119,9 +119,11 @@ function Login() {
             // make sure it's been more than 1 minute since the last rate limit
             const lastRateLimit = localStorage.getItem('lastRateLimit');
             const currentTime = new Date().getTime();
-            if(currentTime - lastRateLimit < 60000) {
-                // if it's been less than 1 minute, redirect to the home page
+
+            if(currentTime - lastRateLimit > 60000) {
+                console.log('Removing rate limit')
                 localStorage.removeItem('lastRateLimit');
+                localStorage.removeItem('numRequests');
             }
             else {
                 alert('You have been rate limited by the Spotify API. Please wait a minute before trying again.');

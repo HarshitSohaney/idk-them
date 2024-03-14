@@ -62,8 +62,26 @@ function Search({spotifyAuthToken}) {
             } else {
                 numRequests = 0;
             }
-            
-            if(numRequests > 2) {
+
+            let isRateLimited = false;
+            if(localStorage.getItem('lastRateLimit') !== null) {
+                let lastRateLimit = parseInt(localStorage.getItem('lastRateLimit'));
+                let timeSinceRateLimit = Date.now() - lastRateLimit;
+                if(timeSinceRateLimit < 60 * 1000) {
+                    alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('playlists');
+                    localStorage.removeItem('code_verifier');
+                    navigate('/login');
+                    return;
+                } else {
+                    localStorage.removeItem('lastRateLimit');
+                    // set numRequests to 0
+                    localStorage.setItem('numRequests', 0);
+                }
+            }
+
+            if(numRequests > 3) {
                 alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
                 localStorage.setItem('lastRateLimit', Date.now());
                 localStorage.removeItem('authToken');
@@ -253,10 +271,8 @@ function Search({spotifyAuthToken}) {
             }
             
             for (const [key, value] of playlistMap) {
-                console.log("HERE");
                 let playlistToFind = playlists.find(playlist => playlist.id === key);
                 let tracks = await getTracksForPlaylist(playlistToFind);
-                console.log(playlistToFind);
                 tracks = tracks.map(track => {
                     // get the artists for the track
                     let artists = track.track?.artists.map(artist => {
@@ -267,15 +283,16 @@ function Search({spotifyAuthToken}) {
                     });
                     return {
                         name: track.track?.name,
+                        id: track.track?.id,
                         artists: artists,
                         album: {
                             name: track.track?.album.name,
                             id: track.track?.album.id
                         },
                         playlistImg: playlistToFind.images[0].url,
+                        trackURL: track.track?.external_urls.spotify,
                     };
                 });
-                console.log(tracks);
                 playlistMap.set(key, tracks);
             }
             

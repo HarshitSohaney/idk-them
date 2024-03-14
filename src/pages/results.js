@@ -20,7 +20,7 @@ function Results() {
     const [ doneLoading, setDoneLoading ] = useState(false);
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
     const [ similarArtists, setSimilarArtists ] = useState([]);
-    const [tracksUserKnows, setTracksUserKnows] = useState([]);
+    const [tracksUserKnows, setTracksUserKnows] = useState({});
 
     useEffect(() => {
         const getArtistInfo = async () => {
@@ -103,33 +103,40 @@ function Results() {
             let playlistsToAdd = [];
             let tracksMap = new Map();
             let playlists = localStorage.getItem('playlists');
+            let playlistObjs = localStorage.getItem('playlistsObjs');
             playlists = JSON.parse(playlists);
 
+            console.log('playlists:', playlistObjs);
             // playlists is an object with keys being the playlist id and values being an array of tracks
             for (let playlist in playlists) {
                 playlists[playlist].forEach(track => {
                     track.artists?.forEach(artist => {
                         if (artist.id === artistID) {
                             playlistMap.add(playlist);
-                            tracksMap.set(playlist, track);
-                            return;
+
+                            if (tracksMap.has(track.id)) {
+                                let currTrack = tracksMap.get(track.id);
+                                // push the playlist img url to the array
+                                currTrack.playlists.push(JSON.parse(playlistObjs)[playlist].images[0].url);
+                                tracksMap.set(track.id, currTrack);
+                            } else {
+                                let trackObj = {
+                                    track: track,
+                                    playlists: [JSON.parse(playlistObjs)[playlist].images[0].url]
+                                };
+                                tracksMap.set(track.id, trackObj);
+                            }
                         }
                     });
                 });
             }
 
-            let playlistObjs = localStorage.getItem('playlistsObjs');
-
             playlistMap.forEach(playlist => {
                 playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
             });
 
-            tracksMap.forEach(track => {
-                tracksUserKnows.push(track);
-            });
-
             setPlaylistsArtistIsIn(playlistsToAdd);
-            
+            setTracksUserKnows(tracksMap);
             Promise.all(promises).then(() => {
                 if(playlistsToAdd.length > 0) {
                     setUserKnowsArtist(true);
