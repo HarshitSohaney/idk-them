@@ -127,7 +127,9 @@ function Search() {
                     }
 
                     let offset = 50;
+                    let timeout = 0;
                     while(data.items.length === 50) {
+                        await new Promise((resolve) => setTimeout(resolve, timeout));
                         response = await fetch(`https://api.spotify.com/v1/users/${id}/playlists?&offset=${offset}&limit=50`, {
                             method: 'GET',
                             headers: {
@@ -141,6 +143,13 @@ function Search() {
                         for (const playlist of data.items) {
                             // set the playlist id as the key and the playlist object as the value
                             playlistsMap.set(playlist.id, playlist);
+                        }
+
+                        offset += 50;
+                        timeout += 5000;
+
+                        if(timeout > 15000) {
+                            setLoaderString("Usually takes about 1 minute to get this stuff... but might take longer for you 😶 ");
                         }
                     }
     
@@ -160,7 +169,9 @@ function Search() {
                     }
     
                     offset = 50;
+                    timeout = 0;
                     while(data.items.length === 50) {
+                        await new Promise((resolve) => setTimeout(resolve, timeout));
                         response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50&offset=${offset}`, {
                             method: 'GET',
                             headers: {
@@ -176,6 +187,11 @@ function Search() {
                         }
 
                         offset += 50;
+                        timeout += 5000;
+
+                        if(timeout > 15000) {
+                            setLoaderString("👀 you have alot of data danggggg... Going to take a bit more time...");
+                        }
                     }
                     
                     let plainObject = {};
@@ -297,7 +313,9 @@ function Search() {
                 let savedTracks = data.items;
 
                 let offset = 50;
+                let timeout = 0;
                 while(data.items.length === 50) {
+                    await Promise((resolve) => setTimeout(resolve, timeout));
                     response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`, {
                         method: 'GET',
                         headers: {
@@ -329,6 +347,11 @@ function Search() {
                     );
                     savedTracks = savedTracks.concat(data.items);
                     offset += 50;
+                    timeout += 3000;
+
+                    if(timeout > 10000) {
+                        setLoaderString("This is taking longer than we thought... still getting your Spotify data...");
+                    }
                 }
 
                 localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
