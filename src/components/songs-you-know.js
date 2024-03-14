@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
+import play_button from "../images/play_button.png";
 import "../css/songs-you-know.css";
 
 function SongsYouKnow({tracks}) {
-    console.log("track data", tracks);
-    // tracks is a map from track id to track object of type {track: track, playlists: [playlist images]}
     // show the tracks with the most playlist appearances first
     tracks = new Map([...tracks].sort((a, b) => {
         return b[1].playlists.length - a[1].playlists.length;

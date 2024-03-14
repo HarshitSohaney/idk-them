@@ -21,7 +21,9 @@ function Playlists({playlists, type}) {
             <div id="playlist-list">
                 {playlists.map(playlist => {
                     return (
-                        <div className="playlist-item" id={type} key={playlist.id}>
+                        <div className="playlist-item" id={type} key={playlist.id} onClick={() => {
+                            window.open(playlist.external_urls.spotify, "_blank");
+                        }}>
                             <img src={playlist.images[0].url} alt={playlist.name} />
                             <h4>{playlist.name}</h4>
                         </div>

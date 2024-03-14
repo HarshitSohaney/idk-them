@@ -126,8 +126,7 @@ function Login() {
                 localStorage.removeItem('numRequests');
             }
             else {
-                alert('You have been rate limited by the Spotify API. Please wait a minute before trying again.');
-                localStorage.removeItem('authToken');
+                alert('You have been rate limited by the Spotify API. Please wait a minute before trying again.', 'Time remaining: ', (60000 - (currentTime - lastRateLimit)) / 1000);
                 navigate('/');
             }
         }
