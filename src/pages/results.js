@@ -7,6 +7,7 @@ import Playlists from '../components/playlists';
 import UserArtistState from '../components/user-artist-state';
 import "../css/results.css"
 import SongsYouKnow from '../components/songs-you-know';
+import Loader from '../components/loader';
 
 function Results() {
     const navigate = useNavigate();
@@ -57,8 +58,9 @@ function Results() {
                 // if error occurs with bad access token, we need to redirect to login
                 navigate('/login');
             }
-            userInfo.updateUserFollowsSearchedArtist(data[0]);
-            setUserKnowsArtist(data[0]);
+            if (data[0] === true) {
+                setUserKnowsArtist(true);
+            }
         }
 
         const getSimilarArtists = async () => {
@@ -135,10 +137,9 @@ function Results() {
                 });
             }
     
-            savedTracks.forEach(track => {
+            for(let track of savedTracks) {
                 track.artists.forEach(artist => {
                     if (artist.id === artistID) {
-                        console.log('user knows artist');
                         setUserKnowsArtist(true);
                         tracksMap.set(track.id, {
                             track: track,
@@ -147,7 +148,6 @@ function Results() {
                     }
                 });
             }
-            );
 
             albums.forEach(album => {
                 album.artists.forEach(artist => {
@@ -156,14 +156,12 @@ function Results() {
                         albumsMap.set(album.id, album);
                     }
                 });
-            }
-            );
+            });
 
             let albumsToAdd = [];   
             albumsMap.forEach(album => {
                 albumsToAdd.push(album);
-            }
-            );
+            });
             setAlbumsArtistIsIn(albumsToAdd);
             playlistMap.forEach(playlist => {
                 playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
@@ -175,7 +173,6 @@ function Results() {
                 if(playlistsToAdd.length > 0) {
                     setUserKnowsArtist(true);
                 }
-                console.log('userKnowsArtist:', userKnowsArtist);
                 setDoneLoading(true);
             });
         } catch (error) {
@@ -197,7 +194,7 @@ function Results() {
                     {userKnowsArtist? <SongsYouKnow tracks={tracksUserKnows} /> : null} 
                     <Playlists playlists={similarArtists} type="similar-artists" />
                 </div>
-            ) : <div> Loading... </div> }
+            ) : <Loader string={"Finding out if you know them!!"}/> }
             <div className='action-button'>
                 <button onClick={() => {
                     updateArtistID(null);

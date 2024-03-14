@@ -19,7 +19,7 @@ const SCOPES =
     playlist-modify-public
     playlist-modify-private
     `;
-const REDIRECT_URI = 'https://idk-them.vercel.app/login';
+const REDIRECT_URI = 'http://localhost:3000/login';
 
 const generateRandomString = (length) => {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -100,7 +100,6 @@ function Login() {
                 // We have an access token, so we can now get the user's profile
                 const accessToken = data.access_token;
                 localStorage.setItem('authToken', accessToken);
-
                 navigate('/');
             } else {
                 // Something went wrong with the authentication
@@ -121,7 +120,6 @@ function Login() {
             const currentTime = new Date().getTime();
 
             if(currentTime - lastRateLimit > 60000) {
-                console.log('Removing rate limit')
                 localStorage.removeItem('lastRateLimit');
                 localStorage.removeItem('numRequests');
             }
