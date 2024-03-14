@@ -18,6 +18,17 @@ function Search({spotifyAuthToken}) {
     const [knownTopArtist, setKnownTopArtist] = useState(false);
     const [loaderString, setLoaderString] = useState("Getting your Spotify data...");
 
+    const check429 = async (response) => {
+        if(response.status === 429) {
+            alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
+            // clear local storage and redirect to login
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('playlists');
+            localStorage.removeItem('code_verifier');
+            navigate('/login');
+            return;
+        }
+    }
     useEffect(() => {
 
         window.addEventListener('message', (event) => {
@@ -103,15 +114,7 @@ function Search({spotifyAuthToken}) {
                         }
                     });
                     
-                    if(response.status === 429) {
-                        alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
-                        // clear local storage and redirect to login
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('playlists');
-                        localStorage.removeItem('code_verifier');
-                        navigate('/login');
-                        return;
-                    }
+                    check429(response);
 
                     let data = await response.json();
                     for (const playlist of data.items) {
@@ -119,15 +122,17 @@ function Search({spotifyAuthToken}) {
                         playlistsMap.set(playlist.id, playlist);
                     }
 
-                    if (data.items === 50) {
-                        response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?offset=50&limit=50`, {
+                    let offset = 50;
+                    while(data.items.length === 50) {
+                        response = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists?&offset=${offset}&limit=50`, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${spotifyAuthToken}`
                             }
                         });
-    
+                        
+                        check429(response);
                         data = await response.json();
                         for (const playlist of data.items) {
                             // set the playlist id as the key and the playlist object as the value
@@ -143,13 +148,14 @@ function Search({spotifyAuthToken}) {
                             'Authorization': `Bearer ${spotifyAuthToken}`
                         }
                     });
+                    check429(response);
                     data = await response.json();
                     for (const playlist of data.items) {
                         // set the playlist id as the key and the playlist object as the value
                         playlistsMap.set(playlist.id, playlist);
                     }
     
-                    let offset = 50;
+                    offset = 50;
                     while(data.items.length === 50) {
                         response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50&offset=${offset}`, {
                             method: 'GET',
@@ -158,6 +164,8 @@ function Search({spotifyAuthToken}) {
                                 'Authorization': `Bearer ${spotifyAuthToken}`
                             }
                         });
+
+                        check429(response);
                         data = await response.json();
                         for(const playlist of data.items) {
                             playlistsMap.set(playlist.id, playlist);
@@ -209,6 +217,7 @@ function Search({spotifyAuthToken}) {
                         'Authorization': `Bearer ${spotifyAuthToken}`
                     }
                 });
+
                 const data = await response.json();
                 userInfo.updateUserTopTracks(data.items);
                 return true;
@@ -219,16 +228,31 @@ function Search({spotifyAuthToken}) {
 
         const getFollowedArtists = async () => {
             try {
-                let response = await fetch(`https://api.spotify.com/v1/me/following?type=artist`, {
+                let response = await fetch(`https://api.spotify.com/v1/me/following?type=artist&limit=50`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${spotifyAuthToken}`
                     }
                 });
-                const data = await response.json();
-                userInfo.updateUserFollowedArtists(data.artists.items);
+                let data = await response.json();
+                let lastArtist = data.artists.items[data.artists.items.length - 1];
+                let followedArtists = data.artists.items;
 
+                while(data.artists.items.length === 50) {
+                    response = await fetch(`https://api.spotify.com/v1/me/following?type=artist&limit=50&after=${lastArtist.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    data = await response.json();
+                    lastArtist = data.artists.items[data.artists.items.length - 1];
+                    followedArtists = followedArtists.concat(data.artists.items);
+                }
+                
+                userInfo.updateFollowedArtists(followedArtists);
                 return;
             } catch (error) {
                 console.error('Error fetching followed artists:', error);
@@ -237,15 +261,33 @@ function Search({spotifyAuthToken}) {
 
         const getSavedTracks = async () => {
             try {
-                let response = await fetch(`https://api.spotify.com/v1/me/tracks`, {
+                let response = await fetch(`https://api.spotify.com/v1/me/tracks/limit=50`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${spotifyAuthToken}`
                     }
                 });
-                const data = await response.json();
-                userInfo.updateSavedTracks(data.items);
+                check429(response);
+                let data = await response.json();
+                let savedTracks = data.items;
+
+                let offset = 50;
+                while(data.items.length === 50) {
+                    response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    check429(response);
+                    data = await response.json();
+                    savedTracks = savedTracks.concat(data.items);
+                    offset += 50;
+                }
+
+                userInfo.updateSavedTracks(savedTracks);
                 return;
             } catch (error) {
                 console.error('Error fetching saved tracks:', error);
