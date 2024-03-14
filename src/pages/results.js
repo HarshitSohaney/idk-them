@@ -22,7 +22,8 @@ function Results() {
     const [ doneLoading, setDoneLoading ] = useState(false);
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
     const [ similarArtists, setSimilarArtists ] = useState([]);
-    const [tracksUserKnows, setTracksUserKnows] = useState({});
+    const [ savedTracksUserHas, setSavedTracksUserHas ] = useState({});
+    const [ tracksUserKnows, setTracksUserKnows ] = useState({});
 
     useEffect(() => {
         const getArtistInfo = async () => {
@@ -136,12 +137,13 @@ function Results() {
                     });
                 });
             }
-    
+            
+            let savedTracksMap = new Map();
             for(let track of savedTracks) {
                 track.artists.forEach(artist => {
                     if (artist.id === artistID) {
                         setUserKnowsArtist(true);
-                        tracksMap.set(track.id, {
+                        savedTracksMap.set(track.id, {
                             track: track,
                             playlists: []
                         });
@@ -169,6 +171,7 @@ function Results() {
 
             setPlaylistsArtistIsIn(playlistsToAdd);
             setTracksUserKnows(tracksMap);
+            setSavedTracksUserHas(savedTracksMap);
             Promise.all(promises).then(() => {
                 if(playlistsToAdd.length > 0) {
                     setUserKnowsArtist(true);
@@ -191,7 +194,8 @@ function Results() {
 
                     <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
                     <Playlists playlists={albumsArtistIsIn} type="saved-albums" />
-                    {userKnowsArtist? <SongsYouKnow tracks={tracksUserKnows} /> : null} 
+                    {userKnowsArtist && tracksUserKnows.size > 0 ? <SongsYouKnow tracks={tracksUserKnows} type={"playlists-tracks"}/> : null}
+                    {userKnowsArtist && savedTracksUserHas.size > 0 ? <SongsYouKnow tracks={savedTracksUserHas} type={"saved-tracks"} /> : null}
                     <Playlists playlists={similarArtists} type="similar-artists" />
                 </div>
             ) : <Loader string={"Finding out if you know them!!"}/> }

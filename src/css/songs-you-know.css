@@ -19,11 +19,19 @@
     justify-content: flex-start;
     width: 60%;
     height: 400px;
-    background: rgb(29,86,101);
-    background: linear-gradient(45deg, rgba(29,86,101,1) 0%, rgba(23,55,68,1) 100%); 
     border-radius: 20px;
     margin: 1em;
     padding: 1em 0;
+}
+
+.songs-list, #playlists-tracks {
+    background: rgb(29,86,101);
+    background: linear-gradient(45deg, rgb(37, 108, 126) 0%, rgba(23,55,68,1) 100%); 
+}
+
+.songs-list, #saved-tracks {
+    background: rgb(101, 29, 29);
+    background: linear-gradient(45deg, rgb(155, 46, 46) 0%, rgb(68, 23, 23) 100%); 
 }
 
 .songs-list::-webkit-scrollbar {
@@ -63,6 +71,11 @@
 
 .item-info p {
     color: rgb(138, 214, 255);
+    font-style: italic;
+}
+
+#saved-tracks p {
+    color: rgb(255, 138, 138);
     font-style: italic;
 }
 
