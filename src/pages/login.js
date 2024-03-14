@@ -115,6 +115,21 @@ function Login() {
         /* The code snippet you provided is part of a React component called `Login`. In this
         component, the `useEffect` hook is being used to perform certain actions when the component
         mounts. */
+        if(localStorage.getItem('lastRateLimit') !== null) {
+            // make sure it's been more than 1 minute since the last rate limit
+            const lastRateLimit = localStorage.getItem('lastRateLimit');
+            const currentTime = new Date().getTime();
+            if(currentTime - lastRateLimit < 60000) {
+                // if it's been less than 1 minute, redirect to the home page
+                localStorage.removeItem('lastRateLimit');
+            }
+            else {
+                alert('You have been rate limited by the Spotify API. Please wait a minute before trying again.');
+                localStorage.removeItem('authToken');
+                navigate('/');
+            }
+        }
+
         // remove local storage items if they exist
         if(localStorage.getItem('authToken') === null) {
             localStorage.removeItem('playlists');

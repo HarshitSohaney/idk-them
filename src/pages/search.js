@@ -56,6 +56,24 @@ function Search({spotifyAuthToken}) {
 
         const getPlaylists = async () => {
             let response;
+            let numRequests;
+            if(localStorage.getItem('numRequests') !== null) {
+                numRequests = parseInt(localStorage.getItem('numRequests'));
+            } else {
+                numRequests = 0;
+            }
+            
+            if(numRequests > 2) {
+                alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
+                localStorage.setItem('lastRateLimit', Date.now());
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('playlists');
+                localStorage.removeItem('code_verifier');
+                navigate('/login');
+            } else {
+                localStorage.setItem('numRequests', numRequests + 1);
+            }
+
             try {
                 let playlistsGetter = async () => {
                     let playlistsMap = new Map();
