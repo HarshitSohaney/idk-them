@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import "../css/about-artist.css";
 
-function Playlists({playlists, type}) {
+function Playlists({playlists, type}) { 
+    console.log(playlists, type);
     useEffect(() => {
         // Change styling if we are displaying similar artists
         if (type === "similar-artists") {
@@ -17,7 +18,7 @@ function Playlists({playlists, type}) {
     return (
         <div id="your-playlists">
             {playlists.length === 0 ? null : 
-                 type === "playlist-item" ? <h2>Your Playlist Appearances</h2> : type === "similar-artists" ? <h2>Similar Artists</h2> : null }
+                 type === "playlist-item" ? <h2>Your Playlist Appearances</h2> : type === "similar-artists" ? <h2>Similar Artists</h2> : type ==="saved-albums" ? <h2>Saved Albums</h2> : null}
             <div id="playlist-list">
                 {playlists.map(playlist => {
                     return (

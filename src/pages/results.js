@@ -17,6 +17,7 @@ function Results() {
 
     const [ isTopArtist, setIsTopArtist ] = useState(false);
     const [ playlistsArtistIsIn, setPlaylistsArtistIsIn ] = useState([]);
+    const [ albumsArtistIsIn, setAlbumsArtistIsIn ] = useState([]);
     const [ doneLoading, setDoneLoading ] = useState(false);
     const [ userKnowsArtist, setUserKnowsArtist ] = useState(false);
     const [ similarArtists, setSimilarArtists ] = useState([]);
@@ -98,15 +99,18 @@ function Results() {
 
             // get playlists the artist is in
             const playlistMap = new Set();
-
+            const albumsMap = new Map();
             // get playlists from local storage
             let playlistsToAdd = [];
             let tracksMap = new Map();
             let playlists = localStorage.getItem('playlists');
             let playlistObjs = localStorage.getItem('playlistsObjs');
+            let albums = localStorage.getItem('savedAlbums');
+            let savedTracks = localStorage.getItem('savedTracks');
+            savedTracks = JSON.parse(savedTracks);
+            albums = JSON.parse(albums);
             playlists = JSON.parse(playlists);
 
-            console.log('playlists:', playlistObjs);
             // playlists is an object with keys being the playlist id and values being an array of tracks
             for (let playlist in playlists) {
                 playlists[playlist].forEach(track => {
@@ -130,7 +134,37 @@ function Results() {
                     });
                 });
             }
+    
+            savedTracks.forEach(track => {
+                track.artists.forEach(artist => {
+                    if (artist.id === artistID) {
+                        console.log('user knows artist');
+                        setUserKnowsArtist(true);
+                        tracksMap.set(track.id, {
+                            track: track,
+                            playlists: []
+                        });
+                    }
+                });
+            }
+            );
 
+            albums.forEach(album => {
+                album.artists.forEach(artist => {
+                    if (artist.id === artistID) {
+                        setUserKnowsArtist(true);
+                        albumsMap.set(album.id, album);
+                    }
+                });
+            }
+            );
+
+            let albumsToAdd = [];   
+            albumsMap.forEach(album => {
+                albumsToAdd.push(album);
+            }
+            );
+            setAlbumsArtistIsIn(albumsToAdd);
             playlistMap.forEach(playlist => {
                 playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
             });
@@ -141,6 +175,7 @@ function Results() {
                 if(playlistsToAdd.length > 0) {
                     setUserKnowsArtist(true);
                 }
+                console.log('userKnowsArtist:', userKnowsArtist);
                 setDoneLoading(true);
             });
         } catch (error) {
@@ -158,6 +193,7 @@ function Results() {
                     <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
 
                     <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
+                    <Playlists playlists={albumsArtistIsIn} type="saved-albums" />
                     {userKnowsArtist? <SongsYouKnow tracks={tracksUserKnows} /> : null} 
                     <Playlists playlists={similarArtists} type="similar-artists" />
                 </div>

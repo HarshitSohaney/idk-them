@@ -265,7 +265,7 @@ function Search() {
 
         const getSavedTracks = async () => {
             try {
-                let response = await fetch(`https://api.spotify.com/v1/me/tracks/limit=50`, {
+                let response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -274,6 +274,26 @@ function Search() {
                 });
                 check429(response);
                 let data = await response.json();
+                // just keep some of the data
+                data.items = data.items.map(track => {
+                    // get the artists for the track
+                    let artists = track.track.artists.map(artist => {
+                        return {
+                            name: artist.name,
+                            id: artist.id
+                        };
+                    });
+                    return {
+                        name: track.track.name,
+                        id: track.track.id,
+                        artists: artists,
+                        album: {
+                            name: track.track.album.name,
+                            id: track.track.album.id
+                        },
+                        trackURL: track.track.external_urls.spotify
+                    };
+                });
                 let savedTracks = data.items;
 
                 let offset = 50;
@@ -287,17 +307,104 @@ function Search() {
                     });
                     check429(response);
                     data = await response.json();
+                    data.items = data.items.map(track => {
+                        // get the artists for the track
+                        let artists = track.track.artists.map(artist => {
+                            return {
+                                name: artist.name,
+                                id: artist.id
+                            };
+                        });
+                        return {
+                            name: track.track.name,
+                            id: track.track.id,
+                            artists: artists,
+                            album: {
+                                name: track.track.album.name,
+                                id: track.track.album.id
+                            },
+                            trackURL: track.track.external_urls.spotify
+                        };
+                    }
+                    );
                     savedTracks = savedTracks.concat(data.items);
                     offset += 50;
                 }
 
-                userInfo.updateSavedTracks(savedTracks);
+                localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
                 return;
             } catch (error) {
                 console.error('Error fetching saved tracks:', error);
             }
         };
         
+        const getSavedAlbums = async () => {
+            try {
+                let response = await fetch(`https://api.spotify.com/v1/me/albums?limit=50`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${spotifyAuthToken}`
+                    }
+                });
+                check429(response);
+                let data = await response.json();
+                // just keep some of the data
+                data.items = data.items.map(album => {
+                    return {
+                        name: album.album.name,
+                        id: album.album.id,
+                        artists: album.album.artists.map(artist => {
+                            return {
+                                name: artist.name,
+                                id: artist.id
+                            };
+                        }),
+                        images: album.album.images,
+                        external_urls: {
+                            spotify: album.album.external_urls.spotify
+                        }
+                    };
+                });
+                let savedAlbums = data.items;
+
+                let offset = 50;
+                while(data.items.length === 50) {
+                    response = await fetch(`https://api.spotify.com/v1/me/albums?limit=50&offset=${offset}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    check429(response);
+                    data = await response.json();
+                    data.items = data.items.map(album => {
+                        return {
+                            name: album.album.name,
+                            id: album.album.id,
+                            artists: album.album.artists.map(artist => {
+                                return {
+                                    name: artist.name,
+                                    id: artist.id
+                                };
+                            }),
+                            images: album.album.images,
+                            external_urls: {
+                                spotify: album.album.external_urls.spotify
+                            }
+                        };
+                    });
+                    savedAlbums = savedAlbums.concat(data.items);
+                    offset += 50;
+                }
+
+                localStorage.setItem('savedAlbums', JSON.stringify(savedAlbums));
+                return;
+            } catch (error) {
+                console.error('Error fetching saved albums:', error);
+            }
+        }
         const getTracksForPlaylist = async (playlist) => {
             let response = await fetch(playlist.tracks.href, {
                 method: 'GET',
@@ -347,7 +454,7 @@ function Search() {
         };
 
         const fetchData = async () => {
-            let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks(), getUserInfo()];
+            let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks(), getUserInfo(), getSavedAlbums()];
 
             // get the user's playlists after getting the user's info
             await Promise.all(promises);

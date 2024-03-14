@@ -5,7 +5,7 @@ import you_know_them from "../images/you_know_them.png";
 import "../css/user-artist-state.css"
 
 function UserArtistState({userArtistState}) {
-    const images = [know_them_well];
+    console.log(userArtistState);
     const states = ["You love them! They're all over your library", "You know this artist, they appear in some of your playlists!", "You don't know this artist... yet :) Let's change that"];
 
     return (

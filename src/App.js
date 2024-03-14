@@ -15,6 +15,7 @@ function App() {
   const [userPlaylists, setUserPlaylists] = useState([]);
   const [artistInfo, setArtistInfo] = useState({});
   const [savedTracks, setSavedTracks] = useState([]);
+  const [savedAlbums, setSavedAlbums] = useState([]);
   const [userTopTracks, setUserTopTracks] = useState([]);
   const [userFollowedArtists, setUserFollowedArtists] = useState([]);
   const [userFollowsSearchedArtist, setUserFollowsSearchedArtist] = useState(false);
@@ -45,6 +46,9 @@ function App() {
   }
   const updateUserFollowsSearchedArtist = (newUserFollowsSearchedArtist) => {
     setUserFollowsSearchedArtist(newUserFollowsSearchedArtist);
+  }
+  const updateSavedAlbums = (newSavedAlbums) => {
+    setSavedAlbums(newSavedAlbums);
   }
 
   const updateArtistID = (newArtistID) => {
@@ -80,6 +84,8 @@ function App() {
     updateInitDone,
     playlistTracks,
     updatePlaylistTracks,
+    savedAlbums,
+    updateSavedAlbums,
   };
 
   const searchContext = {
