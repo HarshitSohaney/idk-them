@@ -5,7 +5,8 @@ import Search from './pages/search';
 import Results from './pages/results';
 import UserContext from './contexts/userContext';
 import SearchContext from './contexts/searchContext';
-import Logout from './components/logout';
+
+// V1.0.0
 
 function App() {
   const navigate = useNavigate();
