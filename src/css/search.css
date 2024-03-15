@@ -62,6 +62,49 @@
     border-radius: 50%;
 }
 
+#info {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30%;
+    justify-content: flex-end;
+    display: flex;
+    margin: 1em;
+    background-color: #121212;
+    border-radius: 20px;
+}
+
+#info-box {
+    display: none;
+    flex: wrap;
+    border-radius: 20px;
+    border: 2px solid #ffffff;
+    padding: 1em;
+    font-style: italic;
+    color: #a2a2a2ff;
+    box-shadow: 0 0 10px #000000;
+}
+
+#info button {
+    background-color: #121212;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    margin: 5px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    height: fit-content;
+}
+
+#info-box img {
+    width: auto;
+}
+#info img {
+    width: 30px;
+    height: 30px;
+}
+
+
 @media screen and (max-width: 768px) {
 
     #suggestions-table {
@@ -96,5 +139,9 @@
     .artist-suggestion >button > p{
         font-size: 0.8rem;
         align-items: center;
+    }
+
+    #info {
+        width: 80%;
     }
 }

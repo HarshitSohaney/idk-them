@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import Logout from "../components/logout";
 import MadeBy from "../components/made-by.js";
 import Loader from "../components/loader";
-
+import information from "../images/information.png";
+import Spotify_Logo from "../images/Spotify_Logo.png";
 function Search() {
     const navigate = useNavigate();
     const userInfo = useContext(UserContext);
@@ -524,7 +525,24 @@ function Search() {
     }, [searchTerm, spotifyAuthToken, setSearchResults]);
     return (
         <div className="search">
-            {
+            <div id="info">
+                <div id="info-box">
+                    <p>Spotify is used to fetch all your listening data and playlists. We do not store any of your data. The app stores everything locally to your browser, so none of your information is taken out of here!</p>
+                    <img src={Spotify_Logo} alt="Information" />
+                </div>
+                <button id="info-button" onClick={() => {
+                    let infoBox = document.getElementById('info-box');
+                    if(infoBox.style.display === "none") {
+                        infoBox.style.display = "block";
+                    } else {
+                        infoBox.style.display = "none";
+                    }
+                }
+                }>
+                    <img src={information} alt="Information" />
+                </button>
+            </div>
+            {   
                 (doneLoading) ? (
                     <div>
                     <h1>Who are you looking for <span className="username">{userInfo.userName}</span>?</h1>

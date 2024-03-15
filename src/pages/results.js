@@ -8,6 +8,7 @@ import UserArtistState from '../components/user-artist-state';
 import "../css/results.css"
 import SongsYouKnow from '../components/songs-you-know';
 import Loader from '../components/loader';
+import AddPlaylist from '../components/add-playlist';
 
 function Results() {
     const navigate = useNavigate();
@@ -194,6 +195,7 @@ function Results() {
 
                     <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
                     <Playlists playlists={albumsArtistIsIn} type="saved-albums" />
+                    {!userKnowsArtist ? <AddPlaylist artistID={artistID} /> : null}
                     {userKnowsArtist && tracksUserKnows.size > 0 ? <SongsYouKnow tracks={tracksUserKnows} type={"playlists-tracks"}/> : null}
                     {userKnowsArtist && savedTracksUserHas.size > 0 ? <SongsYouKnow tracks={savedTracksUserHas} type={"saved-tracks"} /> : null}
                     <Playlists playlists={similarArtists} type="similar-artists" />
