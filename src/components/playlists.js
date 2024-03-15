@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import "../css/about-artist.css";
 
 function Playlists({playlists, type}) { 
-    console.log(playlists, type);
     useEffect(() => {
         // Change styling if we are displaying similar artists
         if (type === "similar-artists") {
@@ -25,7 +24,7 @@ function Playlists({playlists, type}) {
                         <div className="playlist-item" id={type} key={playlist.id} onClick={() => {
                             window.open(playlist.external_urls.spotify, "_blank");
                         }}>
-                            <img src={playlist.images[0].url} alt={playlist.name} />
+                            <img src={playlist.images[0]?.url} alt={playlist.name} />
                             <h4>{playlist.name}</h4>
                         </div>
                     );

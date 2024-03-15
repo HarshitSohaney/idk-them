@@ -124,12 +124,12 @@ function Results() {
                             if (tracksMap.has(track.id)) {
                                 let currTrack = tracksMap.get(track.id);
                                 // push the playlist img url to the array
-                                currTrack.playlists.push(JSON.parse(playlistObjs)[playlist].images[0].url);
+                                currTrack.playlists.push(JSON.parse(playlistObjs)[playlist].images[0]?.url);
                                 tracksMap.set(track.id, currTrack);
                             } else {
                                 let trackObj = {
                                     track: track,
-                                    playlists: [JSON.parse(playlistObjs)[playlist].images[0].url]
+                                    playlists: [JSON.parse(playlistObjs)[playlist].images[0]?.url]
                                 };
                                 tracksMap.set(track.id, trackObj);
                             }

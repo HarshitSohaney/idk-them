@@ -6,7 +6,7 @@ function AboutArtist({artistInfo}) {
     return (
         <div id="about-artist">
             <div id="artist-header-img">
-            <img src={artistInfo.images[0]?.url} alt={"No Image"} />
+            <img src={artistInfo.images[0]?.url} alt={artistInfo.name} />
             </div>
 
             <h1>{artistInfo.name}</h1>

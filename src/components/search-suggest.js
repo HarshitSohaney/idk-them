@@ -14,7 +14,7 @@ function SearchSuggest({name, id, images}) {
         <div className="artist-suggestion">
         <button onClick={handleSuggestClick}>
             {   images.length > 0 ?
-                <img src={images[0].url} alt={name} /> : null
+                <img src={images[0]?.url} alt={name} /> : null
             }
             <p>{name}</p>
         </button>
