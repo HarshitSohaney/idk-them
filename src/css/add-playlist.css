@@ -8,7 +8,7 @@
   margin: 0.2em 1em;
   padding: 1em;
   border-radius: 5px;
-  background-color: #101010;
+  background-color: #0f0f0f;
   box-shadow: 0 0 20px #1e1e1e;
 }
 
@@ -18,7 +18,6 @@
 
 .songs-list-add {
     padding: 1em;
-    box-shadow: 0 0.5em 10px #303030;
 }
 
 #add-playlist-playlist-name {
@@ -65,7 +64,12 @@
 @media screen and (max-width: 768px) {
     .songs-list-add {
         width: auto;
+        padding: 0;
         margin: 0.2em;
+    }
+
+    .song-item {
+        padding: 0.2em;
     }
 
     #add-playlist-info-section {
