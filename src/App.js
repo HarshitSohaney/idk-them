@@ -6,7 +6,7 @@ import Results from './pages/results';
 import UserContext from './contexts/userContext';
 import SearchContext from './contexts/searchContext';
 
-// V1.0.0
+// V1.0.1
 
 function App() {
   const navigate = useNavigate();
