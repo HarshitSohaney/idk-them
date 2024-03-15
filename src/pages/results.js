@@ -120,6 +120,10 @@ function Results() {
             albums = LZString.decompressFromUTF16(albums);
             albums = JSON.parse(albums);
 
+            let savedAlbumTracks = localStorage.getItem('savedAlbumTracks');
+            savedAlbumTracks = LZString.decompressFromUTF16(savedAlbumTracks);
+            savedAlbumTracks = JSON.parse(savedAlbumTracks);
+
             let savedTracks = localStorage.getItem('savedTracks');
             savedTracks = LZString.decompressFromUTF16(savedTracks);
             savedTracks = JSON.parse(savedTracks);
@@ -167,6 +171,29 @@ function Results() {
                         setUserKnowsArtist(true);
                         albumsMap.set(album.id, album);
                     }
+                });
+
+                // check if the artist is in one of the saved albums
+                savedAlbumTracks[album.id].forEach(track => {
+                    track.artists.forEach(artist => {
+                        if (artist.id === artistID) {
+                            setUserKnowsArtist(true);
+                            albumsMap.set(album.id, album);
+
+                            if (savedTracksMap.has(track.id)) {
+                                let currTrack = savedTracksMap.get(track.id);
+                                // push the album img url to the array
+                                currTrack.playlists.push(album.images[0]?.url);
+                                savedTracksMap.set(track.id, currTrack);
+                            } else {
+                                let trackObj = {
+                                    track: track,
+                                    playlists: [album.images[0]?.url]
+                                };
+                                savedTracksMap.set(track.id, trackObj);
+                            }
+                        }
+                    });
                 });
             });
 

@@ -410,6 +410,7 @@ function Search() {
                     }
                 }
 
+                console.log('savedTracks:', savedTracks);
                 let compressed = LZString.compressToUTF16(JSON.stringify(savedTracks));
                 localStorage.setItem('savedTracks', compressed);
 
@@ -480,13 +481,58 @@ function Search() {
                     offset += 50;
                 }
 
+                // we need to get all the tracks for the albums
+                let albumTracksMap = new Map();
+                for (const album of savedAlbums) {
+                    let response = await fetch(`https://api.spotify.com/v1/albums/${album.id}/tracks?limit=50`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${spotifyAuthToken}`
+                        }
+                    });
+                    let data = await response.json();
+                    
+                    // only keep the data we need
+                    data.items = data.items.map(track => {
+                        // get the artists for the track
+                        let artists = track.artists.map(artist => {
+                            return {
+                                name: artist.name,
+                                id: artist.id
+                            };
+                        });
+                        return {
+                            name: track.name,
+                            id: track.id,
+                            artists: artists,
+                            album: {
+                                name: album.name,
+                                id: album.id
+                            },
+                            trackURL: track.external_urls.spotify
+                        };
+                    });
+
+                    albumTracksMap.set(album.id, data.items);
+                }
+                
                 let compressed = LZString.compressToUTF16(JSON.stringify(savedAlbums));
+
+                let plainObject = {};
+                albumTracksMap.forEach((value, key) => {
+                    plainObject[key] = value;
+                });
+
+                let compressedTracks = LZString.compressToUTF16(JSON.stringify(plainObject));
                 localStorage.setItem('savedAlbums', compressed);
+                localStorage.setItem('savedAlbumTracks', compressedTracks);
                 return;
             } catch (error) {
                 console.error('Error fetching saved albums:', error);
             }
         }
+
         const getTracksForPlaylist = async (playlist) => {
             let response = await fetch(playlist.tracks.href, {
                 method: 'GET',
@@ -540,7 +586,7 @@ function Search() {
 
             if(localStorage.getItem('savedTracks') === null) {
                 promises.push(getSavedTracks());
-            } 
+            }
             if(localStorage.getItem('savedAlbums') === null) {
                 promises.push(getSavedAlbums());
             }

@@ -133,6 +133,9 @@ function Login() {
         if(localStorage.getItem('authToken') === null) {
             localStorage.removeItem('playlists');
             localStorage.removeItem('playlistsObjs');
+            localStorage.removeItem('savedTracks');
+            localStorage.removeItem('savedAlbums');
+            localStorage.removeItem('playlistTracks');
         }
         const authToken = handleAuthCode();
     }, []);

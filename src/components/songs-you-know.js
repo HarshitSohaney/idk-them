@@ -10,7 +10,7 @@ function SongsYouKnow({tracks, type}) {
 
     return (
         <div id="songs-you-know">
-            {type === "playlists-tracks" ? <h2>Songs in your playlists</h2> : type === "saved-tracks" ? <h2>Songs in your liked</h2> : null}
+            {type === "playlists-tracks" ? <h2>Songs in your playlists</h2> : type === "saved-tracks" ? <h2>Songs you've saved</h2> : null}
             <div className="songs-list" id={type}>
                 {Array.from(tracks).map(track => {
                     return (
