@@ -9,6 +9,7 @@ import "../css/results.css"
 import SongsYouKnow from '../components/songs-you-know';
 import Loader from '../components/loader';
 import AddPlaylist from '../components/add-playlist';
+import LZString from 'lz-string';
 
 function Results() {
     const navigate = useNavigate();
@@ -108,13 +109,21 @@ function Results() {
             let playlistsToAdd = [];
             let tracksMap = new Map();
             let playlists = localStorage.getItem('playlists');
-            let playlistObjs = localStorage.getItem('playlistsObjs');
-            let albums = localStorage.getItem('savedAlbums');
-            let savedTracks = localStorage.getItem('savedTracks');
-            savedTracks = JSON.parse(savedTracks);
-            albums = JSON.parse(albums);
+            playlists = LZString.decompressFromUTF16(playlists);
             playlists = JSON.parse(playlists);
 
+            let playlistObjs = localStorage.getItem('playlistsObjs');
+            playlistObjs = LZString.decompressFromUTF16(playlistObjs);
+            playlistObjs = JSON.parse(playlistObjs);
+
+            let albums = localStorage.getItem('savedAlbums');
+            albums = LZString.decompressFromUTF16(albums);
+            albums = JSON.parse(albums);
+
+            let savedTracks = localStorage.getItem('savedTracks');
+            savedTracks = LZString.decompressFromUTF16(savedTracks);
+            savedTracks = JSON.parse(savedTracks);
+            
             // playlists is an object with keys being the playlist id and values being an array of tracks
             for (let playlist in playlists) {
                 playlists[playlist].forEach(track => {
@@ -125,12 +134,12 @@ function Results() {
                             if (tracksMap.has(track.id)) {
                                 let currTrack = tracksMap.get(track.id);
                                 // push the playlist img url to the array
-                                currTrack.playlists.push(JSON.parse(playlistObjs)[playlist].images[0]?.url);
+                                currTrack.playlists.push(playlistObjs[playlist].images[0]?.url);
                                 tracksMap.set(track.id, currTrack);
                             } else {
                                 let trackObj = {
                                     track: track,
-                                    playlists: [JSON.parse(playlistObjs)[playlist].images[0]?.url]
+                                    playlists: [playlistObjs[playlist].images[0]?.url]
                                 };
                                 tracksMap.set(track.id, trackObj);
                             }
@@ -167,7 +176,7 @@ function Results() {
             });
             setAlbumsArtistIsIn(albumsToAdd);
             playlistMap.forEach(playlist => {
-                playlistsToAdd.push(JSON.parse(playlistObjs)[playlist]);
+                playlistsToAdd.push(playlistObjs[playlist]);
             });
 
             setPlaylistsArtistIsIn(playlistsToAdd);

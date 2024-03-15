@@ -8,6 +8,8 @@ import MadeBy from "../components/made-by.js";
 import Loader from "../components/loader";
 import information from "../images/information.png";
 import Spotify_Logo from "../images/Spotify_Logo.png";
+import LZString from "lz-string";
+
 function Search() {
     const navigate = useNavigate();
     const userInfo = useContext(UserContext);
@@ -123,7 +125,19 @@ function Search() {
                     check429(response);
 
                     let data = await response.json();
-                    for (const playlist of data.items) {
+                    for (let playlist of data.items) {
+                        // only keep the data we need
+                        playlist = {
+                            name: playlist.name,
+                            id: playlist.id,
+                            images: playlist.images,
+                            external_urls: {
+                                spotify: playlist.external_urls.spotify
+                            },
+                            tracks: {
+                                href: playlist.tracks.href
+                            },
+                        }
                         // set the playlist id as the key and the playlist object as the value
                         playlistsMap.set(playlist.id, playlist);
                     }
@@ -142,7 +156,20 @@ function Search() {
                         
                         check429(response);
                         data = await response.json();
-                        for (const playlist of data.items) {
+                        for (let playlist of data.items) {
+                            // only keep the data we need
+                            playlist = {
+                                name: playlist.name,
+                                id: playlist.id,
+                                images: playlist.images,
+                                external_urls: {
+                                    spotify: playlist.external_urls.spotify
+                                },
+                                tracks: {
+                                    href: playlist.tracks.href
+                                },
+                            }
+
                             // set the playlist id as the key and the playlist object as the value
                             playlistsMap.set(playlist.id, playlist);
                         }
@@ -165,7 +192,19 @@ function Search() {
                     });
                     check429(response);
                     data = await response.json();
-                    for (const playlist of data.items) {
+                    for (let playlist of data.items) {
+                        // only keep the data we need
+                        playlist = {
+                            name: playlist.name,
+                            id: playlist.id,
+                            images: playlist.images,
+                            external_urls: {
+                                spotify: playlist.external_urls.spotify
+                            },
+                            tracks: {
+                                href: playlist.tracks.href
+                            },
+                        }
                         // set the playlist id as the key and the playlist object as the value
                         playlistsMap.set(playlist.id, playlist);
                     }
@@ -184,7 +223,19 @@ function Search() {
 
                         check429(response);
                         data = await response.json();
-                        for(const playlist of data.items) {
+                        for(let playlist of data.items) {
+                            // only keep the data we need
+                            playlist = {
+                                name: playlist.name,
+                                id: playlist.id,
+                                images: playlist.images,
+                                external_urls: {
+                                    spotify: playlist.external_urls.spotify
+                                },
+                                tracks: {
+                                    href: playlist.tracks.href
+                                },
+                            }
                             playlistsMap.set(playlist.id, playlist);
                         }
 
@@ -201,7 +252,8 @@ function Search() {
                         plainObject[key] = value;
                     });
 
-                    localStorage.setItem('playlistsObjs', JSON.stringify(plainObject));
+                    let compressed = LZString.compressToUTF16(JSON.stringify(plainObject));
+                    localStorage.setItem('playlistsObjs', compressed);
                     return playlistsMap;
                 }
 
@@ -213,7 +265,9 @@ function Search() {
                         plainObject[key] = value;
                     }
 
-                    localStorage.setItem('playlists', JSON.stringify(plainObject));
+                    let compressed = LZString.compressToUTF16(JSON.stringify(plainObject));
+                    localStorage.setItem('playlists', compressed);
+
                     window.postMessage('done', '*');
                 });
 
@@ -356,7 +410,9 @@ function Search() {
                     }
                 }
 
-                localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
+                let compressed = LZString.compressToUTF16(JSON.stringify(savedTracks));
+                localStorage.setItem('savedTracks', compressed);
+
                 return;
             } catch (error) {
                 console.error('Error fetching saved tracks:', error);
@@ -424,7 +480,8 @@ function Search() {
                     offset += 50;
                 }
 
-                localStorage.setItem('savedAlbums', JSON.stringify(savedAlbums));
+                let compressed = LZString.compressToUTF16(JSON.stringify(savedAlbums));
+                localStorage.setItem('savedAlbums', compressed);
                 return;
             } catch (error) {
                 console.error('Error fetching saved albums:', error);
@@ -479,8 +536,14 @@ function Search() {
         };
 
         const fetchData = async () => {
-            let promises = [getTopTracks(), getFollowedArtists(), getSavedTracks(), getUserInfo(), getSavedAlbums()];
+            let promises = [getTopTracks(), getFollowedArtists(), getUserInfo()];
 
+            if(localStorage.getItem('savedTracks') === null) {
+                promises.push(getSavedTracks());
+            } 
+            if(localStorage.getItem('savedAlbums') === null) {
+                promises.push(getSavedAlbums());
+            }
             // get the user's playlists after getting the user's info
             await Promise.all(promises);
 
