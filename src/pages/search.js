@@ -59,6 +59,7 @@ function Search() {
                 const data = await response.json();
                 userInfo.updateUserID(data.id);
                 setUserID(data.id);
+                localStorage.setItem('userID', data.id);
                 userInfo.updateUserName(data.display_name);
                 
                 if(localStorage.getItem('playlists') === null) {
@@ -97,7 +98,7 @@ function Search() {
                 }
             }
 
-            if(numRequests > 3) {
+            if(numRequests > 4) {
                 alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
                 localStorage.setItem('lastRateLimit', Date.now());
                 localStorage.removeItem('authToken');
@@ -316,7 +317,7 @@ function Search() {
                 let offset = 50;
                 let timeout = 0;
                 while(data.items.length === 50) {
-                    await Promise((resolve) => setTimeout(resolve, timeout));
+                    await new Promise((resolve) => setTimeout(resolve, timeout));
                     response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`, {
                         method: 'GET',
                         headers: {

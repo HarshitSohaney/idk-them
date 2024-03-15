@@ -96,14 +96,14 @@
     height: fit-content;
 }
 
-#info-box img {
-    width: auto;
-}
 #info img {
     width: 30px;
     height: 30px;
 }
 
+#info-box img {
+    width: auto;
+}
 
 @media screen and (max-width: 768px) {
 
