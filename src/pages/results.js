@@ -127,7 +127,7 @@ function Results() {
             let savedTracks = localStorage.getItem('savedTracks');
             savedTracks = LZString.decompressFromUTF16(savedTracks);
             savedTracks = JSON.parse(savedTracks);
-            
+
             // playlists is an object with keys being the playlist id and values being an array of tracks
             for (let playlist in playlists) {
                 playlists[playlist].forEach(track => {

@@ -20,6 +20,7 @@ function Search() {
     const [doneLoading, setDoneLoading] = useState(false);
     const [knownTopArtist, setKnownTopArtist] = useState(false);
     const [loaderString, setLoaderString] = useState("Getting your Spotify data...");
+    let messages = ['done-playlists', 'done-saved-tracks', 'done-saved-albums'];
 
     const check429 = async (response) => {
         if(response.status === 429) {
@@ -29,15 +30,20 @@ function Search() {
             localStorage.removeItem('playlists');
             localStorage.removeItem('code_verifier');
             navigate('/login');
-            return;
+            // cancel the rest of the requests
+            throw new Error('Rate limit reached');
         }
     }
     useEffect(() => {
-
         window.addEventListener('message', (event) => {
-            // set done loading to true so we don't keep trying to fetch the user's data
-            // check the message
-            if(event.data === 'done') {
+            if(messages.includes(event.data)) {
+                // remove from the array
+                let index = messages.indexOf(event.data);
+                messages.splice(index, 1);
+                console.log(messages);
+            }
+
+            if(messages.length === 0) {
                 setDoneLoading(true);
             }
         });
@@ -66,8 +72,13 @@ function Search() {
                 
                 if(localStorage.getItem('playlists') === null) {
                     await getPlaylists(data.id);
+                    await getSavedTracks();
+                    await getSavedAlbums();
+
                 } else {
-                    window.postMessage('done', '*');
+                    window.postMessage('done-playlists', '*');
+                    window.postMessage('done-saved-tracks', '*');
+                    window.postMessage('done-saved-albums', '*');
                 }
             } catch (error) {
                 console.error('Error fetching user info:', error);
@@ -268,7 +279,7 @@ function Search() {
                     let compressed = LZString.compressToUTF16(JSON.stringify(plainObject));
                     localStorage.setItem('playlists', compressed);
 
-                    window.postMessage('done', '*');
+                    window.postMessage('done-playlists', '*');
                 });
 
                 return true;
@@ -337,6 +348,10 @@ function Search() {
 
         const getSavedTracks = async () => {
             try {
+                if(localStorage.getItem('savedTracks') !== null) {
+                    window.postMessage('done-saved-tracks', '*');
+                    return;
+                }
                 let response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50`, {
                     method: 'GET',
                     headers: {
@@ -370,7 +385,8 @@ function Search() {
 
                 let offset = 50;
                 let timeout = 0;
-                while(data.items.length === 50) {
+                while(data.items.length === 50) { 
+                    console.log('getting saved tracks', offset);
                     await new Promise((resolve) => setTimeout(resolve, timeout));
                     response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`, {
                         method: 'GET',
@@ -403,17 +419,13 @@ function Search() {
                     );
                     savedTracks = savedTracks.concat(data.items);
                     offset += 50;
-                    timeout += 3000;
-
-                    if(timeout > 10000) {
-                        setLoaderString("This is taking longer than we thought... still getting your Spotify data...");
-                    }
                 }
 
-                console.log('savedTracks:', savedTracks);
+                console.log('got saved tracks', savedTracks.length);
                 let compressed = LZString.compressToUTF16(JSON.stringify(savedTracks));
                 localStorage.setItem('savedTracks', compressed);
 
+                window.postMessage('done-saved-tracks', '*');
                 return;
             } catch (error) {
                 console.error('Error fetching saved tracks:', error);
@@ -422,6 +434,10 @@ function Search() {
         
         const getSavedAlbums = async () => {
             try {
+                if(localStorage.getItem('savedAlbums') !== null) {
+                    window.postMessage('done-saved-albums', '*');
+                    return;
+                }
                 let response = await fetch(`https://api.spotify.com/v1/me/albums?limit=50`, {
                     method: 'GET',
                     headers: {
@@ -527,11 +543,13 @@ function Search() {
                 let compressedTracks = LZString.compressToUTF16(JSON.stringify(plainObject));
                 localStorage.setItem('savedAlbums', compressed);
                 localStorage.setItem('savedAlbumTracks', compressedTracks);
+
+                window.postMessage('done-saved-albums', '*');
                 return;
             } catch (error) {
                 console.error('Error fetching saved albums:', error);
             }
-        }
+        };
 
         const getTracksForPlaylist = async (playlist) => {
             let response = await fetch(playlist.tracks.href, {
@@ -584,16 +602,8 @@ function Search() {
         const fetchData = async () => {
             let promises = [getTopTracks(), getFollowedArtists(), getUserInfo()];
 
-            if(localStorage.getItem('savedTracks') === null) {
-                promises.push(getSavedTracks());
-            }
-            if(localStorage.getItem('savedAlbums') === null) {
-                promises.push(getSavedAlbums());
-            }
             // get the user's playlists after getting the user's info
             await Promise.all(promises);
-
-            userInfo.updateInitDone(true);
         };
 
         fetchData();
