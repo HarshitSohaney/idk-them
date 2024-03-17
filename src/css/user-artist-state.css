@@ -11,6 +11,11 @@ img {
     align-items: center;
 }
 
+#user-artist-state h3 {
+    color: white;
+    font-weight: normal;
+}
+
 @media screen and (min-width: 769px) {
     #user-artist-state {
         flex-direction: column;

@@ -64,6 +64,10 @@
     transition: background-color 0.3s ease;
 }
 
+.playlist-item > h4 {
+    font-weight: 400;
+}
+
 .playlist-item:hover {
     background-color: #3e3e3e;
     cursor: pointer;

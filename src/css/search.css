@@ -49,6 +49,7 @@
     transition: background-color 0.3s ease;
     background-color: #121212;
     padding: 1em;
+    font-family: 'Poppins', sans-serif;
 }
 
 .artist-suggestion > button:hover {

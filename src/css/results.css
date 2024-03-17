@@ -6,4 +6,12 @@
     scrollbar-width: thin;
     scrollbar-color: #1DB954 #121212;
     height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+.results > h3 {
+    font-weight: normal;
+}
+.results::-webkit-scrollbar {
+    width: 12px;
 }
