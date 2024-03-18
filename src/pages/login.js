@@ -9,10 +9,7 @@ const SCOPES =
     `user-read-private
     user-library-read
     user-top-read
-    user-read-currently-playing
-    user-library-modify
     user-follow-read
-    user-follow-modify
     playlist-read-private
     playlist-read-collaborative
     playlist-modify-public
