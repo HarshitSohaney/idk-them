@@ -13,7 +13,6 @@ const SCOPES =
     playlist-read-private
     playlist-read-collaborative
     playlist-modify-public
-    playlist-modify-private
     `;
 const REDIRECT_URI = 'https://idk-them.vercel.app/login';
 
