@@ -297,7 +297,7 @@ function Search() {
 
         const getTopTracks = async () => {
             try {
-                let response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50`, {
+                let response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=long_term`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -306,7 +306,32 @@ function Search() {
                 });
 
                 const data = await response.json();
-                userInfo.updateUserTopTracks(data.items);
+                let topTracks = data.items;
+
+                // add short term and medium term top tracks
+                response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${spotifyAuthToken}`
+                    }
+                });
+
+                const shortTermData = await response.json();
+                topTracks = topTracks.concat(shortTermData.items);
+
+                response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=medium_term`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${spotifyAuthToken}`
+                    }
+                });
+
+                const mediumTermData = await response.json();
+                topTracks = topTracks.concat(mediumTermData.items);
+
+                userInfo.updateUserTopTracks(topTracks);
                 return true;
             } catch (error) {
                 console.error('Error fetching top tracks:', error);
@@ -315,7 +340,7 @@ function Search() {
 
         const getTopArtists = async () => {
             try {
-                let response = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=20`, {
+                let response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=20`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
