@@ -40,7 +40,6 @@ function Search() {
                 // remove from the array
                 let index = messages.indexOf(event.data);
                 messages.splice(index, 1);
-                console.log(messages);
             }
 
             if(messages.length === 0) {
@@ -97,12 +96,13 @@ function Search() {
             if(localStorage.getItem('lastRateLimit') !== null) {
                 let lastRateLimit = parseInt(localStorage.getItem('lastRateLimit'));
                 let timeSinceRateLimit = Date.now() - lastRateLimit;
+
                 if(timeSinceRateLimit < 60 * 1000) {
                     alert(`We've reached the rate limit, waiting to retry in 1 hour. Please wait and try again.`);
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('playlists');
                     localStorage.removeItem('code_verifier');
-                    navigate('/');
+                    navigate('/login');
                     return;
                 } else {
                     localStorage.removeItem('lastRateLimit');
@@ -313,6 +313,24 @@ function Search() {
             }
         };
 
+        const getTopArtists = async () => {
+            try {
+                let response = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=20`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${spotifyAuthToken}`
+                    }
+                });
+
+                const data = await response.json();
+                userInfo.updateUserTopArtists(data.items);
+                return true;
+            } catch (error) {
+                console.error('Error fetching top artists:', error);
+            }
+        }
+
         const getFollowedArtists = async () => {
             try {
                 let response = await fetch(`https://api.spotify.com/v1/me/following?type=artist&limit=50`, {
@@ -386,7 +404,6 @@ function Search() {
                 let offset = 50;
                 let timeout = 0;
                 while(data.items.length === 50) { 
-                    console.log('getting saved tracks', offset);
                     await new Promise((resolve) => setTimeout(resolve, timeout));
                     response = await fetch(`https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`, {
                         method: 'GET',
@@ -421,7 +438,6 @@ function Search() {
                     offset += 50;
                 }
 
-                console.log('got saved tracks', savedTracks.length);
                 let compressed = LZString.compressToUTF16(JSON.stringify(savedTracks));
                 localStorage.setItem('savedTracks', compressed);
 
@@ -600,7 +616,7 @@ function Search() {
         };
 
         const fetchData = async () => {
-            let promises = [getTopTracks(), getFollowedArtists(), getUserInfo()];
+            let promises = [getTopTracks(), getFollowedArtists(), getUserInfo(), getTopArtists()];
 
             // get the user's playlists after getting the user's info
             await Promise.all(promises);

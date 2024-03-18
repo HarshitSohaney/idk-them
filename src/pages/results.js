@@ -18,7 +18,9 @@ function Results() {
     const { artistID, updateArtistID } = useContext(SearchContext);
     const [ artistInfo, setArtistInfo ] = useState(null);
 
+    const [ isTopArtistWithTrack, setIsTopArtistWithTrack ] = useState(false);
     const [ isTopArtist, setIsTopArtist ] = useState(false);
+    const [ topArtistIndex, setTopArtistIndex ] = useState(-1);
     const [ playlistsArtistIsIn, setPlaylistsArtistIsIn ] = useState([]);
     const [ albumsArtistIsIn, setAlbumsArtistIsIn ] = useState([]);
     const [ doneLoading, setDoneLoading ] = useState(false);
@@ -96,11 +98,23 @@ function Results() {
                 track.artists.forEach(artist => {
                     if (artist.id === artistID) {
                         userInfo.updateUserFollowsSearchedArtist(true);
-                        setIsTopArtist(true);
+                        setIsTopArtistWithTrack(true);
                         setUserKnowsArtist(true);
                     }
                 });
             });
+
+            userInfo.userTopArtists.forEach(artist => {
+                if (artist.id === artistID) {
+                    // save index of the artist in the user's top artists
+                    let index = userInfo.userTopArtists.indexOf(artist);
+                    setTopArtistIndex(index);
+                    userInfo.updateUserFollowsSearchedArtist(true);
+                    setIsTopArtist(true);
+                    setUserKnowsArtist(true);
+                }
+            }
+            );
 
             // get playlists the artist is in
             const playlistMap = new Set();
@@ -127,7 +141,6 @@ function Results() {
             let savedTracks = localStorage.getItem('savedTracks');
             savedTracks = LZString.decompressFromUTF16(savedTracks);
             savedTracks = JSON.parse(savedTracks);
-
             // playlists is an object with keys being the playlist id and values being an array of tracks
             for (let playlist in playlists) {
                 playlists[playlist].forEach(track => {
@@ -227,7 +240,7 @@ function Results() {
                 <div style={{width: '100%'}}>
                     <AboutArtist artistInfo={artistInfo} />
 
-                    <UserArtistState userArtistState={isTopArtist? 0 : userKnowsArtist ? 1 : 2} />
+                    <UserArtistState artistName={artistInfo.name} userArtistState={isTopArtist? 0 : isTopArtistWithTrack? 1 : userKnowsArtist ? 2 : 3} topArtistIndex={topArtistIndex}/>
 
                     <Playlists playlists={playlistsArtistIsIn} type="playlist-item" />
                     <Playlists playlists={albumsArtistIsIn} type="saved-albums" />

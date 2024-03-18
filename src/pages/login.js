@@ -8,7 +8,6 @@ import MadeBy from '../components/made-by';
 const SCOPES = 
     `user-read-private
     user-library-read
-    user-read-recently-played
     user-top-read
     user-read-currently-playing
     user-library-modify
@@ -118,8 +117,8 @@ function Login() {
             // make sure it's been more than 1 minute since the last rate limit
             const lastRateLimit = localStorage.getItem('lastRateLimit');
             const currentTime = new Date().getTime();
-
-            if(currentTime - lastRateLimit > 60000) {
+            const min = currentTime - lastRateLimit;
+            if(min > 60000) {
                 localStorage.removeItem('lastRateLimit');
                 localStorage.removeItem('numRequests');
             }
