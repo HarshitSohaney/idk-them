@@ -159,7 +159,7 @@ function Login() {
                 </button>
             </div>
             <h1>I don't know them</h1>
-            <p>Let's find out</p>
+            <p>or do you? Let's find out</p>
             <button id="login-spotify" onClick={async () => {
                 // TODO: Set the auth tokens in the local storage
                 // and set authenticated to true
