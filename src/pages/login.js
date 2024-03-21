@@ -5,6 +5,10 @@ import env
  from 'react-dotenv';
 import "../css/login.css";
 import MadeBy from '../components/made-by';
+import Spotify_Logo from '../images/Spotify_Logo.png';
+import information from '../images/information.png';
+import "../css/search.css";
+
 const SCOPES = 
     `user-read-private
     user-library-read
@@ -14,7 +18,7 @@ const SCOPES =
     playlist-read-collaborative
     playlist-modify-public
     `;
-const REDIRECT_URI = 'https://idk-them.vercel.app/login';
+const REDIRECT_URI = 'http://localhost:3000/login';
 
 const generateRandomString = (length) => {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -137,13 +141,31 @@ function Login() {
 
     return (
         <div className="login-root">
-            <h1>Do I know them?</h1>
+            <div id="info">
+                <div id="info-box">
+                    <p>Spotify is used to fetch all your listening data and playlists. We do not store any of your data. The app stores everything locally to your browser, so none of your information is taken out of here!</p>
+                    <img src={Spotify_Logo} alt="Information" />
+                </div>
+                <button id="info-button" onClick={() => {
+                    let infoBox = document.getElementById('info-box');
+                    if(infoBox.style.display === "none") {
+                        infoBox.style.display = "block";
+                    } else {
+                        infoBox.style.display = "none";
+                    }
+                }
+                }>
+                    <img src={information} alt="Information" />
+                </button>
+            </div>
+            <h1>I don't know them</h1>
+            <p>Let's find out</p>
             <button id="login-spotify" onClick={async () => {
                 // TODO: Set the auth tokens in the local storage
                 // and set authenticated to true
                 // Spotify login setup
                 const authToken = await getAuthCode();
-            }}>Login With Spotify</button>
+            }}><h4>Login With</h4> <img src={Spotify_Logo} alt="spotify_logo"></img></button>
             <MadeBy />
         </div>
     );

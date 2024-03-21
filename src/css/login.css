@@ -10,8 +10,8 @@
 }
 
 #login-spotify {
-    background-color: #1DB954;
-    color: white;
+    background-color: #393939;
+    color: #1ed760;
     border: none;
     padding: 10px 20px;
     margin-top: 20px;
@@ -19,8 +19,21 @@
     font-size: 1.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    display: flex;
 }
 
 #login-spotify:hover {
-    background-color: #1ed760;
+    background-color: #1ed75f7b;
+}
+
+#login-spotify img {
+    width: 100px;
+    height: fit-content;
+    margin-left: 10px;
+}
+
+#login-spotify > h4, h1 {
+    margin: 0;
 }
