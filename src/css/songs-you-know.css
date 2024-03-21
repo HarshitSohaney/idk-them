@@ -113,4 +113,8 @@
     .playlists img {
         margin: 0 0.3em;
     }
+
+    #songs-you-know h2 {
+        margin: revert;
+    }
 }
