@@ -18,7 +18,7 @@ const SCOPES =
     playlist-read-collaborative
     playlist-modify-public
     `;
-const REDIRECT_URI = 'http://localhost:3000/login';
+const REDIRECT_URI = 'https://idk-them.vercel.app/login';
 
 const generateRandomString = (length) => {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
