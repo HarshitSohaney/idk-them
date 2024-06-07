@@ -686,23 +686,6 @@ function Search() {
     }, [searchTerm, spotifyAuthToken, setSearchResults]);
     return (
         <div className="search">
-            <div id="info">
-                <div id="info-box">
-                    <p>Spotify is used to fetch all your listening data and playlists. We do not store any of your data. The app stores everything locally to your browser, so none of your information is taken out of here!</p>
-                    <img src={Spotify_Logo} alt="Information" />
-                </div>
-                <button id="info-button" onClick={() => {
-                    let infoBox = document.getElementById('info-box');
-                    if(infoBox.style.display === "none") {
-                        infoBox.style.display = "block";
-                    } else {
-                        infoBox.style.display = "none";
-                    }
-                }
-                }>
-                    <img src={information} alt="Information" />
-                </button>
-            </div>
             {   
                 (doneLoading) ? (
                     <div>
@@ -710,6 +693,7 @@ function Search() {
                     <input type="text" placeholder="Search for an Artist..." onChange={(event) => {
                         setSearchTerm(event.target.value);
                     }} />
+                    <img id="spotify-icon" src={require('../images/Spotify_Icon_RGB_White.png')} alt="Spotify Logo" style={{top: "0", right: "0"}}></img>
             {searchResults.length > 0? (
             <div id="suggestions-table">
                     {searchResults.map((artist) => {

@@ -248,6 +248,7 @@ function Results() {
                     {userKnowsArtist && tracksUserKnows.size > 0 ? <SongsYouKnow tracks={tracksUserKnows} type={"playlists-tracks"}/> : null}
                     {userKnowsArtist && savedTracksUserHas.size > 0 ? <SongsYouKnow tracks={savedTracksUserHas} type={"saved-tracks"} /> : null}
                     <Playlists playlists={similarArtists} type="similar-artists" />
+                    <div style={{height: '40px'}}></div>
                 </div>
             ) : <Loader string={"Finding out if you know them!!"}/> }
             <div className='action-button'>
@@ -256,6 +257,7 @@ function Results() {
                     navigate('/')
                 }}> New Search </button>
             </div>
+            <img id="spotify-icon" src={require("../images/Spotify_Icon_RGB_White.png")} alt="Follow" />
         </div>
     );
 }

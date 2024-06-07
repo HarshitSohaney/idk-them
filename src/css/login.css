@@ -34,6 +34,10 @@
     margin-left: 10px;
 }
 
-#login-spotify > h4, h1 {
+#login-spotify > h4 {
+    margin: 0;
+}
+
+.login-root > h2 {
     margin: 0;
 }

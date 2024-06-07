@@ -141,25 +141,8 @@ function Login() {
 
     return (
         <div className="login-root">
-            <div id="info">
-                <div id="info-box">
-                    <p>Spotify is used to fetch all your listening data and playlists. We do not store any of your data. The app stores everything locally to your browser, so none of your information is taken out of here!</p>
-                    <img src={Spotify_Logo} alt="Information" />
-                </div>
-                <button id="info-button" onClick={() => {
-                    let infoBox = document.getElementById('info-box');
-                    if(infoBox.style.display === "none") {
-                        infoBox.style.display = "block";
-                    } else {
-                        infoBox.style.display = "none";
-                    }
-                }
-                }>
-                    <img src={information} alt="Information" />
-                </button>
-            </div>
-            <h1>I don't know them</h1>
-            <p>Let's find out</p>
+            <h2>I don't know them</h2>
+            <i>or do you? Let's find out</i>
             <button id="login-spotify" onClick={async () => {
                 // TODO: Set the auth tokens in the local storage
                 // and set authenticated to true

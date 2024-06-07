@@ -62,16 +62,17 @@
     border-radius: 50%;
 }
 
-#info {
+#spotify-icon {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 30%;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    width: 40px;
     justify-content: flex-end;
     display: flex;
-    margin: 1em;
-    background-color: #121212;
-    border-radius: 20px;
+    margin: 23px 20px;
+    background-color: #000000;
+    border-radius: 100px;
 }
 
 #info-box {
