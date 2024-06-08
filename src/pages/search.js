@@ -306,6 +306,8 @@ function Search() {
                 });
 
                 const data = await response.json();
+                check429(response);
+
                 let topTracks = data.items;
 
                 // add short term and medium term top tracks
@@ -318,6 +320,8 @@ function Search() {
                 });
 
                 const shortTermData = await response.json();
+                check429(response);
+
                 topTracks = topTracks.concat(shortTermData.items);
 
                 response = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=medium_term`, {
@@ -438,6 +442,7 @@ function Search() {
                         }
                     });
                     check429(response);
+
                     data = await response.json();
                     data.items = data.items.map(track => {
                         // get the artists for the track
@@ -549,7 +554,8 @@ function Search() {
                         }
                     });
                     let data = await response.json();
-                    
+                    check429(response);
+
                     // only keep the data we need
                     data.items = data.items.map(track => {
                         // get the artists for the track
@@ -693,7 +699,7 @@ function Search() {
                     <input type="text" placeholder="Search for an Artist..." onChange={(event) => {
                         setSearchTerm(event.target.value);
                     }} />
-                    <img id="spotify-icon" src={require('../images/Spotify_Icon_RGB_White.png')} alt="Spotify Logo" style={{top: "0", right: "0"}}></img>
+                    <img id="spotify-icon" src={require('../images/Spotify_Logo_RGB_White.png')} alt="Spotify Logo" style={{top: "0", right: "0"}}></img>
             {searchResults.length > 0? (
             <div id="suggestions-table">
                     {searchResults.map((artist) => {

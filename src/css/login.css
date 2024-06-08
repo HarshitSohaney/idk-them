@@ -30,7 +30,7 @@
 
 #login-spotify img {
     width: 100px;
-    height: fit-content;
+    height: auto;
     margin-left: 10px;
 }
 
