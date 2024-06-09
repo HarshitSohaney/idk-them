@@ -18,7 +18,6 @@ function Search() {
     const [searchResults, setSearchResults] = useState([]);
     const [userId, setUserID] = useState(null);
     const [doneLoading, setDoneLoading] = useState(false);
-    const [knownTopArtist, setKnownTopArtist] = useState(false);
     const [loaderString, setLoaderString] = useState("Getting your Spotify data... This can take about 1 to 2 minutes...");
     let messages = ['done-playlists', 'done-saved-tracks', 'done-saved-albums'];
 

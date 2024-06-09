@@ -257,7 +257,7 @@ function Results() {
                     navigate('/')
                 }}> New Search </button>
             </div>
-            <img id="spotify-icon" src={require("../images/Spotify_Logo_RGB_White.png")} alt="Follow" />
+            <img id="spotify-icon" src={require("../images/Spotify_Icon_RGB_White.png")} alt="Spotify Logo" style={{width: '40px'}}/>
         </div>
     );
 }
